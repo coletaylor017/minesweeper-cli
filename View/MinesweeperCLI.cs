@@ -170,7 +170,7 @@ namespace Minesweeper
                     if (t.IsFlagged)
                         toWrite += "f ";
                     else if (t.IsHidden)
-                        toWrite += "- ";
+                        toWrite += "  ";
                     else if (t.IsMine)
                         toWrite += "M ";
                     else if (t.Value == 0)
@@ -178,10 +178,45 @@ namespace Minesweeper
                     else
                         toWrite += t.Value + " ";
 
-                    // set color
-                    
+                    if (t.IsHidden)
+                    {
+                        Console.BackgroundColor = ConsoleColor.Gray;
+                        Console.ForegroundColor = ConsoleColor.Black;
+                    }
+                    else
+                    {
+                        if (t.IsMine)
+                        {
+                            Console.BackgroundColor = ConsoleColor.Red;
+                            Console.ForegroundColor = ConsoleColor.Black;
+                        }
+                        else
+                        {
+                            switch(t.Value)
+                            {
+                                case 0:
+                                    Console.ForegroundColor = ConsoleColor.Black;
+                                    break;
+                                case 1:
+                                    Console.ForegroundColor = ConsoleColor.Blue;
+                                    break;
+                                case 2:
+                                    Console.ForegroundColor = ConsoleColor.Green;
+                                    break;
+                                case 3:
+                                    Console.ForegroundColor = ConsoleColor.Red;
+                                    break;
+                                case 4:
+                                    Console.ForegroundColor = ConsoleColor.DarkMagenta;
+                                    break;
+                                default:
+                                    Console.ForegroundColor = ConsoleColor.Yellow;
+                                    break;
+                            }
+                        }
+                    }
 
-                    // invert to show cursor
+                    // invert if the cursor is over the current cell
                     if (row == theController.theMinefield.SelectedRow && col == theController.theMinefield.SelectedCol)
                     {
                         ConsoleColor oldBgColor = Console.BackgroundColor;
