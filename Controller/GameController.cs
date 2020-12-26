@@ -22,12 +22,19 @@ namespace Minesweeper
         public event Action<bool> GameOver;
 
         /// <summary>
+        /// The status message to display below the game board
+        /// </summary>
+        public string statusMessage = "Selected: a1";
+
+        /// <summary>
         /// Move the current tile selection up one square
         /// </summary>
         public void MoveCursorUp()
         {
             if (theMinefield.SelectedRow > 0)
                 theMinefield.SelectedRow--;
+
+            statusMessage = "Selected: " + (char)('a' + theMinefield.SelectedCol) + (theMinefield.SelectedRow + 1);
         }
 
         /// <summary>
@@ -36,9 +43,9 @@ namespace Minesweeper
         public void MoveCursorDown()
         {
             if (theMinefield.SelectedRow < theMinefield.Height - 1)
-            {
                 theMinefield.SelectedRow++;
-            }
+
+            statusMessage = "Selected: " + (char)('a' + theMinefield.SelectedCol) + (theMinefield.SelectedRow + 1);
         }
 
         /// <summary>
@@ -48,6 +55,8 @@ namespace Minesweeper
         {
             if (theMinefield.SelectedCol > 0)
                 theMinefield.SelectedCol--;
+
+            statusMessage = "Selected: " + (char)('a' + theMinefield.SelectedCol) + (theMinefield.SelectedRow + 1);
         }
 
         /// <summary>
@@ -57,6 +66,8 @@ namespace Minesweeper
         {
             if (theMinefield.SelectedCol < theMinefield.Width - 1)
                 theMinefield.SelectedCol++;
+
+            statusMessage = "Selected: " + (char)('a' + theMinefield.SelectedCol) + (theMinefield.SelectedRow + 1);
         }
 
         public void NewGame(int width, int height, int numMines)
@@ -74,6 +85,12 @@ namespace Minesweeper
 
         public void Dig(int col, int row)
         {
+            if (theMinefield.GetTile(col, row).IsFlagged)
+            {
+                statusMessage = "You must remove the flag before digging that space";
+                return;
+            }
+
             if (theMinefield.Dig(col, row)) // if it was a mine
                 GameOver(false); // they lost
 

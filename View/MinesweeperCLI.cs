@@ -13,6 +13,8 @@ namespace Minesweeper
         /// </summary>
         GameController theController = new GameController();
 
+        bool showControlHints = true;
+
         static void Main(string[] args)
         {
             MinesweeperCLI cli = new MinesweeperCLI();
@@ -32,9 +34,11 @@ namespace Minesweeper
         /// <param name="gameIsWon"></param>
         private void EndGame(bool gameIsWon)
         {
+            Console.Clear();
             string message;
             if (gameIsWon)
             {
+                PrintWorld();
                 message = "You win! :D Play again (y/n)?";
             }
             else
@@ -106,8 +110,11 @@ namespace Minesweeper
         /// </summary>
         private void RenderFrame()
         {
+            Console.Clear();
             PrintWorld();
-            Console.WriteLine("Use arrow keys to select, d to dig, and f to toggle flag");
+            Console.WriteLine(theController.statusMessage);
+            if (showControlHints)
+                Console.WriteLine("Use arrow keys to select, d to dig, and f to toggle flags (press h to show/hide this message)");
             ConsoleKeyInfo inputKeyInfo = Console.ReadKey(false);
             switch (inputKeyInfo.Key)
             {
@@ -126,6 +133,9 @@ namespace Minesweeper
                 case ConsoleKey.D:
                     theController.Dig();
                     break;
+                case ConsoleKey.H:
+                    showControlHints = !showControlHints;
+                    break;
                 case ConsoleKey.F:
                     theController.ToggleFlag();
                     break;
@@ -137,7 +147,6 @@ namespace Minesweeper
         /// </summary>
         private void PrintWorld()
         {
-            Console.Clear();
             // print letter guides
             // Should use C# equivalent to Java StringBuilder in next version
             string lineToWrite = "   | ";
@@ -207,10 +216,10 @@ namespace Minesweeper
                                     Console.ForegroundColor = ConsoleColor.Red;
                                     break;
                                 case 4:
-                                    Console.ForegroundColor = ConsoleColor.DarkMagenta;
+                                    Console.ForegroundColor = ConsoleColor.Yellow;
                                     break;
                                 default:
-                                    Console.ForegroundColor = ConsoleColor.Yellow;
+                                    Console.ForegroundColor = ConsoleColor.Magenta;
                                     break;
                             }
                         }
@@ -219,9 +228,18 @@ namespace Minesweeper
                     // invert if the cursor is over the current cell
                     if (row == theController.theMinefield.SelectedRow && col == theController.theMinefield.SelectedCol)
                     {
-                        ConsoleColor oldBgColor = Console.BackgroundColor;
-                        Console.BackgroundColor = Console.ForegroundColor;
-                        Console.ForegroundColor = oldBgColor;
+                        if (t.IsHidden || (!t.IsHidden && t.Value == 0))
+                        {
+                            Console.BackgroundColor = ConsoleColor.White;
+                        }
+                        else
+                        {
+                            // swap colors
+                            ConsoleColor oldBgColor = Console.BackgroundColor;
+                            Console.BackgroundColor = Console.ForegroundColor;
+                            Console.ForegroundColor = oldBgColor;
+                        }
+
                     }
 
                     Console.Write(toWrite);
