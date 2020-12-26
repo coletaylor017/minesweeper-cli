@@ -1,9 +1,0 @@
-C:\Users\colet\source\repos\Minesweeper\Controller\bin\Debug\Controller.dll
-C:\Users\colet\source\repos\Minesweeper\Controller\bin\Debug\Controller.pdb
-C:\Users\colet\source\repos\Minesweeper\Controller\bin\Debug\Model.dll
-C:\Users\colet\source\repos\Minesweeper\Controller\bin\Debug\Model.pdb
-C:\Users\colet\source\repos\Minesweeper\Controller\obj\Debug\Controller.csprojAssemblyReference.cache
-C:\Users\colet\source\repos\Minesweeper\Controller\obj\Debug\Controller.csproj.CoreCompileInputs.cache
-C:\Users\colet\source\repos\Minesweeper\Controller\obj\Debug\Controller.csproj.CopyComplete
-C:\Users\colet\source\repos\Minesweeper\Controller\obj\Debug\Controller.dll
-C:\Users\colet\source\repos\Minesweeper\Controller\obj\Debug\Controller.pdb
