@@ -7,3 +7,12 @@ C:\Users\colet\source\repos\Minesweeper\Controller\obj\Release\Controller.csproj
 C:\Users\colet\source\repos\Minesweeper\Controller\obj\Release\Controller.csproj.CopyComplete
 C:\Users\colet\source\repos\Minesweeper\Controller\obj\Release\Controller.dll
 C:\Users\colet\source\repos\Minesweeper\Controller\obj\Release\Controller.pdb
+C:\Users\colet\Source\Repos\MinesweeperCLI\Controller\bin\Release\Controller.dll
+C:\Users\colet\Source\Repos\MinesweeperCLI\Controller\bin\Release\Controller.pdb
+C:\Users\colet\Source\Repos\MinesweeperCLI\Controller\bin\Release\Model.dll
+C:\Users\colet\Source\Repos\MinesweeperCLI\Controller\bin\Release\Model.pdb
+C:\Users\colet\Source\Repos\MinesweeperCLI\Controller\obj\Release\Controller.csprojAssemblyReference.cache
+C:\Users\colet\Source\Repos\MinesweeperCLI\Controller\obj\Release\Controller.csproj.CoreCompileInputs.cache
+C:\Users\colet\Source\Repos\MinesweeperCLI\Controller\obj\Release\Controller.csproj.CopyComplete
+C:\Users\colet\Source\Repos\MinesweeperCLI\Controller\obj\Release\Controller.dll
+C:\Users\colet\Source\Repos\MinesweeperCLI\Controller\obj\Release\Controller.pdb

@@ -49,11 +49,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\colet\\source\\repos\\Minesweeper\\View\\View.csproj",
+      "projectUniqueName": "C:\\Users\\colet\\Source\\Repos\\MinesweeperCLI\\View\\View.csproj",
       "projectName": "View",
-      "projectPath": "C:\\Users\\colet\\source\\repos\\Minesweeper\\View\\View.csproj",
+      "projectPath": "C:\\Users\\colet\\Source\\Repos\\MinesweeperCLI\\View\\View.csproj",
       "packagesPath": "C:\\Users\\colet\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\colet\\source\\repos\\Minesweeper\\View\\obj\\",
+      "outputPath": "C:\\Users\\colet\\Source\\Repos\\MinesweeperCLI\\View\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\colet\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -69,11 +69,11 @@
       "frameworks": {
         "netcoreapp3.1": {
           "projectReferences": {
-            "C:\\Users\\colet\\source\\repos\\Minesweeper\\Controller\\Controller.csproj": {
-              "projectPath": "C:\\Users\\colet\\source\\repos\\Minesweeper\\Controller\\Controller.csproj"
+            "C:\\Users\\colet\\Source\\Repos\\MinesweeperCLI\\Controller\\Controller.csproj": {
+              "projectPath": "C:\\Users\\colet\\Source\\Repos\\MinesweeperCLI\\Controller\\Controller.csproj"
             },
-            "C:\\Users\\colet\\source\\repos\\Minesweeper\\Model\\Model.csproj": {
-              "projectPath": "C:\\Users\\colet\\source\\repos\\Minesweeper\\Model\\Model.csproj"
+            "C:\\Users\\colet\\Source\\Repos\\MinesweeperCLI\\Model\\Model.csproj": {
+              "projectPath": "C:\\Users\\colet\\Source\\Repos\\MinesweeperCLI\\Model\\Model.csproj"
             }
           }
         }
@@ -101,7 +101,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.402\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.401\\RuntimeIdentifierGraph.json"
       }
     }
   }
