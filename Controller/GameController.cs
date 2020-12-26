@@ -21,13 +21,76 @@ namespace Minesweeper
         /// </summary>
         public event Action<bool> GameOver;
 
+        /// <summary>
+        /// The status message to display below the game board
+        /// </summary>
+        public string statusMessage = "Selected: a1";
+
+        /// <summary>
+        /// Move the current tile selection up one square
+        /// </summary>
+        public void MoveCursorUp()
+        {
+            if (theMinefield.SelectedRow > 0)
+                theMinefield.SelectedRow--;
+
+            statusMessage = "Selected: " + (char)('a' + theMinefield.SelectedCol) + (theMinefield.SelectedRow + 1);
+        }
+
+        /// <summary>
+        /// Move the current tile selection down one square
+        /// </summary>
+        public void MoveCursorDown()
+        {
+            if (theMinefield.SelectedRow < theMinefield.Height - 1)
+                theMinefield.SelectedRow++;
+
+            statusMessage = "Selected: " + (char)('a' + theMinefield.SelectedCol) + (theMinefield.SelectedRow + 1);
+        }
+
+        /// <summary>
+        /// Move the current tile selection left one square
+        /// </summary>
+        public void MoveCursorLeft()
+        {
+            if (theMinefield.SelectedCol > 0)
+                theMinefield.SelectedCol--;
+
+            statusMessage = "Selected: " + (char)('a' + theMinefield.SelectedCol) + (theMinefield.SelectedRow + 1);
+        }
+
+        /// <summary>
+        /// Move the current tile selection right one square
+        /// </summary>
+        public void MoveCursorRight()
+        {
+            if (theMinefield.SelectedCol < theMinefield.Width - 1)
+                theMinefield.SelectedCol++;
+
+            statusMessage = "Selected: " + (char)('a' + theMinefield.SelectedCol) + (theMinefield.SelectedRow + 1);
+        }
+
         public void NewGame(int width, int height, int numMines)
         {
             theMinefield = new Minefield(width, height, numMines);
         }
 
+        /// <summary>
+        /// Digs the currently selected tile.
+        /// </summary>
+        public void Dig()
+        {
+            Dig(theMinefield.SelectedCol, theMinefield.SelectedRow);
+        }
+
         public void Dig(int col, int row)
         {
+            if (theMinefield.GetTile(col, row).IsFlagged)
+            {
+                statusMessage = "You must remove the flag before digging that space";
+                return;
+            }
+
             if (theMinefield.Dig(col, row)) // if it was a mine
                 GameOver(false); // they lost
 
@@ -44,6 +107,16 @@ namespace Minesweeper
 
             if (hasWon)
                 GameOver(true); // they won
+        }
+
+        /// <summary>
+        /// Flags or unflags the currently selected square.
+        /// </summary>
+        /// <param name="col"></param>
+        /// <param name="row"></param>
+        public void ToggleFlag()
+        {
+            theMinefield.ToggleFlag(theMinefield.SelectedCol, theMinefield.SelectedRow);
         }
 
         /// <summary>
