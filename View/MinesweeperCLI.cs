@@ -54,6 +54,7 @@ namespace Minesweeper
             string input = Console.ReadLine();
             while(input != "yes" && input != "no" && input != "y" && input != "n")
             {
+                Console.WriteLine("Input not recognized. Type 'yes', 'no', 'y', or 'no'");
                 input = Console.ReadLine();
             }
             if (input == "yes" || input == "y")
