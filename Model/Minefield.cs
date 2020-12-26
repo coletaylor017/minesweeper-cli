@@ -23,12 +23,25 @@ namespace Minesweeper
         public int Height { get; private set; }
 
         /// <summary>
+        /// Column of the current location of the cursor
+        /// </summary>
+        public int SelectedCol { get; set; }
+
+        /// <summary>
+        /// Row of the current lcoation of the cursor
+        /// </summary>
+        public int SelectedRow { get; set; }
+
+        /// <summary>
         /// Generates a new valid minesweeper setup with the given width, height, and number of mines
         /// </summary>
         public Minefield(int width, int height, int numMines)
         {
             Width = width;
             Height = height;
+
+            SelectedCol = 0;
+            SelectedRow = 0;
 
             field = new List<List<Tile>>();
 

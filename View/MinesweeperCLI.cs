@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Drawing;
 
 namespace Minesweeper
 {
@@ -22,6 +23,7 @@ namespace Minesweeper
         public MinesweeperCLI()
         {
             theController.GameOver += EndGame;
+
         }
 
         /// <summary>
@@ -33,14 +35,14 @@ namespace Minesweeper
             string message;
             if (gameIsWon)
             {
-                message = "You win! Play again (y/n)?";
+                message = "You win! :D Play again (y/n)?";
             }
             else
             {
                 // reveal all tiles
                 theController.theMinefield.RevealAllTiles();
                 PrintWorld();
-                message = "You lost :( Play again (y/n)";
+                message = "You lost :( Play again (y/n)?";
             }
 
             Console.WriteLine(message);
@@ -54,9 +56,12 @@ namespace Minesweeper
                 NewGame();
 
             // TODO: else, close the console
-            
+            Environment.Exit(0);
         }
         
+        /// <summary>
+        /// Gets the initial game parameters and starts the game event loop.
+        /// </summary>
         private void NewGame()
         {
             Console.Clear();
@@ -90,79 +95,108 @@ namespace Minesweeper
 
             theController.NewGame(width, height, numMines);
 
-            while (input != "quit" && input != "q" && input != "exit" && input != "stop")
+            while (true) // should still exit when user presses normal console exit key combo
             {
-                PrintWorld();
-                input = Console.ReadLine();
-                    
-                // TODO: input validation
-
-                if (input.Substring(0, 3) == "dig")
-
-                {
-                    int colNum = input[4] - 'a'; // convert char to int
-                    int rowNum = rowNum = int.Parse(input.Substring(5)) - 1;
-                    theController.Dig(colNum, rowNum);
-                }
-                else if (input.Substring(0, 4) == "flag")
-                {
-                    int colNum = input[5] - 'a'; // convert char to int
-                    int rowNum = int.Parse(input.Substring(6)) - 1;
-                    theController.ToggleFlag(colNum, rowNum);
-                }
-                else
-                {
-                    Console.WriteLine("Unrecognized command.");
-                }
+                RenderFrame();
             }
         }
 
+        /// <summary>
+        /// Draws the game board once, then reads input and sends to the controller
+        /// </summary>
+        private void RenderFrame()
+        {
+            PrintWorld();
+            Console.WriteLine("Use arrow keys to select, d to dig, and f to toggle flag");
+            ConsoleKeyInfo inputKeyInfo = Console.ReadKey(false);
+            switch (inputKeyInfo.Key)
+            {
+                case ConsoleKey.UpArrow:
+                    theController.MoveCursorUp();
+                    break;
+                case ConsoleKey.DownArrow:
+                    theController.MoveCursorDown();
+                    break;
+                case ConsoleKey.LeftArrow:
+                    theController.MoveCursorLeft();
+                    break;
+                case ConsoleKey.RightArrow:
+                    theController.MoveCursorRight();
+                    break;
+                case ConsoleKey.D:
+                    theController.Dig();
+                    break;
+                case ConsoleKey.F:
+                    theController.ToggleFlag();
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Prints the current world state to the console
+        /// </summary>
         private void PrintWorld()
         {
             Console.Clear();
             // print letter guides
             // Should use C# equivalent to Java StringBuilder in next version
-            string row = "   | ";
+            string lineToWrite = "   | ";
             for (int i = 0; i < theController.theMinefield.Width; i++)
-                row += $"{(char)('a' + i)} ";
+                lineToWrite += $"{(char)('a' + i)} ";
 
-            Console.WriteLine(row);
+            Console.WriteLine(lineToWrite);
 
-            row = "___|_";
+            lineToWrite = "___|_";
             for (int i = 0; i < theController.theMinefield.Width * 2; i++)
-                row += "_";
+                lineToWrite += "_";
 
-            Console.WriteLine(row);
+            Console.WriteLine(lineToWrite);
 
             // data is stored in columns of rows, but we have to get it to rows of columns in order to print it out
-            for (int j = 0; j < theController.theMinefield.Height; j++)
+            for (int row = 0; row < theController.theMinefield.Height; row++)
             {
-                Console.Write((j + 1));
+                Console.Write((row + 1));
 
                 // print white space to align left border regardless of number of digits
-                for (int n = 0; n < (3 - (j + 1).ToString().Length); n++)
+                for (int i = 0; i < (3 - (row + 1).ToString().Length); i++)
                     Console.Write(" ");
 
                 Console.Write("| ");
 
-                // ditto about using stringBuilder equivalent here
-                row = "";
-
-                for (int i = 0; i < theController.theMinefield.Width; i++)
+                for (int col = 0; col < theController.theMinefield.Width; col++)
                 {
-                    Tile t = theController.theMinefield.GetTile(i, j);
+                    String toWrite = "";
+                    Tile t = theController.theMinefield.GetTile(col, row);
                     if (t.IsFlagged)
-                        row += "f ";
+                        toWrite += "f ";
                     else if (t.IsHidden)
-                        row += "- ";
+                        toWrite += "- ";
                     else if (t.IsMine)
-                        row += "M ";
+                        toWrite += "M ";
                     else if (t.Value == 0)
-                        row += "  ";
+                        toWrite += "  ";
                     else
-                        row += t.Value + " ";
+                        toWrite += t.Value + " ";
+
+                    // set color
+                    
+
+                    // invert to show cursor
+                    if (row == theController.theMinefield.SelectedRow && col == theController.theMinefield.SelectedCol)
+                    {
+                        ConsoleColor oldBgColor = Console.BackgroundColor;
+                        Console.BackgroundColor = Console.ForegroundColor;
+                        Console.ForegroundColor = oldBgColor;
+                    }
+
+                    Console.Write(toWrite);
+
+                    // reset colors
+                    Console.ResetColor();
                 }
-                Console.WriteLine(row);
+
+                // new line
+                Console.WriteLine();
             }
         }
     }

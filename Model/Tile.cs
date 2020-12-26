@@ -16,11 +16,25 @@ namespace Minesweeper
         /// </summary>
         public bool Visited { get; set; }
 
+        /// <summary>
+        /// Whether or not this tile contains a mine
+        /// </summary>
         public bool IsMine { get; set; }
 
+        /// <summary>
+        /// The flag flag!
+        /// </summary>
         public bool IsFlagged { get; set; }
 
+        /// <summary>
+        /// Flag for whether or not this tile should be visible to the user
+        /// </summary>
         public bool IsHidden { get; set; }
+
+        /// <summary>
+        /// Flag for whether or not this square is currently selected by the user.
+        /// </summary>
+        public bool IsSelected { get; set; }
 
         public int Col { get; private set; }
 
@@ -41,6 +55,7 @@ namespace Minesweeper
             IsMine = false;
             IsFlagged = false;
             IsHidden = true;
+            IsSelected = false;
         }
     }
 }

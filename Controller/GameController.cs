@@ -21,9 +21,55 @@ namespace Minesweeper
         /// </summary>
         public event Action<bool> GameOver;
 
+        /// <summary>
+        /// Move the current tile selection up one square
+        /// </summary>
+        public void MoveCursorUp()
+        {
+            if (theMinefield.SelectedRow > 0)
+                theMinefield.SelectedRow--;
+        }
+
+        /// <summary>
+        /// Move the current tile selection down one square
+        /// </summary>
+        public void MoveCursorDown()
+        {
+            if (theMinefield.SelectedRow < theMinefield.Height - 1)
+            {
+                theMinefield.SelectedRow++;
+            }
+        }
+
+        /// <summary>
+        /// Move the current tile selection left one square
+        /// </summary>
+        public void MoveCursorLeft()
+        {
+            if (theMinefield.SelectedCol > 0)
+                theMinefield.SelectedCol--;
+        }
+
+        /// <summary>
+        /// Move the current tile selection right one square
+        /// </summary>
+        public void MoveCursorRight()
+        {
+            if (theMinefield.SelectedCol < theMinefield.Width - 1)
+                theMinefield.SelectedCol++;
+        }
+
         public void NewGame(int width, int height, int numMines)
         {
             theMinefield = new Minefield(width, height, numMines);
+        }
+
+        /// <summary>
+        /// Digs the currently selected tile.
+        /// </summary>
+        public void Dig()
+        {
+            Dig(theMinefield.SelectedCol, theMinefield.SelectedRow);
         }
 
         public void Dig(int col, int row)
@@ -44,6 +90,16 @@ namespace Minesweeper
 
             if (hasWon)
                 GameOver(true); // they won
+        }
+
+        /// <summary>
+        /// Flags or unflags the currently selected square.
+        /// </summary>
+        /// <param name="col"></param>
+        /// <param name="row"></param>
+        public void ToggleFlag()
+        {
+            theMinefield.ToggleFlag(theMinefield.SelectedCol, theMinefield.SelectedRow);
         }
 
         /// <summary>
