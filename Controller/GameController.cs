@@ -116,7 +116,16 @@ namespace Minesweeper
         /// <param name="row"></param>
         public void ToggleFlag()
         {
-            theMinefield.ToggleFlag(theMinefield.SelectedCol, theMinefield.SelectedRow);
+            if (theMinefield.GetTile(theMinefield.SelectedCol, theMinefield.SelectedRow).IsHidden)
+            {
+                theMinefield.ToggleFlag(theMinefield.SelectedCol, theMinefield.SelectedRow);
+                if (theMinefield.GetTile(theMinefield.SelectedCol, theMinefield.SelectedRow).IsFlagged)
+                    statusMessage = "The square is now flagged, this prevents you from accidentally digging it";
+                else
+                    statusMessage = "The square is now un-flagged";
+            }
+            else
+                statusMessage = "You cannot flag an already revealed space";
         }
 
         /// <summary>

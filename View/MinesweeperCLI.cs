@@ -114,7 +114,7 @@ namespace Minesweeper
             PrintWorld();
             Console.WriteLine(theController.statusMessage);
             if (showControlHints)
-                Console.WriteLine("Use arrow keys to select, d to dig, and f to toggle flags (press h to show/hide this message)");
+                Console.WriteLine("Use arrow keys to select a space, d to dig, and f to flag (press h to show/hide this message)");
             ConsoleKeyInfo inputKeyInfo = Console.ReadKey(false);
             switch (inputKeyInfo.Key)
             {
@@ -149,13 +149,13 @@ namespace Minesweeper
         {
             // print letter guides
             // Should use C# equivalent to Java StringBuilder in next version
-            string lineToWrite = "   | ";
+            string lineToWrite = "    ";
             for (int i = 0; i < theController.theMinefield.Width; i++)
                 lineToWrite += $"{(char)('a' + i)} ";
 
             Console.WriteLine(lineToWrite);
 
-            lineToWrite = "___|_";
+            lineToWrite = "    _";
             for (int i = 0; i < theController.theMinefield.Width * 2; i++)
                 lineToWrite += "_";
 
@@ -170,7 +170,7 @@ namespace Minesweeper
                 for (int i = 0; i < (3 - (row + 1).ToString().Length); i++)
                     Console.Write(" ");
 
-                Console.Write("| ");
+                Console.Write("|");
 
                 for (int col = 0; col < theController.theMinefield.Width; col++)
                 {
