@@ -69,7 +69,7 @@ namespace Minesweeper
             // set inital values
             for (int i = 0; i < width; i++)
             {
-                for (int j = 0; j < width; j++)
+                for (int j = 0; j < height; j++)
                 {
                     Tile t = field[i][j];
                     // if not a mine

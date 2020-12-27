@@ -16,11 +16,21 @@ namespace Minesweeper
 
         private bool showControlHints = true;
 
+        /// <summary>
+        /// Whether or not the game board renders in color. Changes the mechanics of the board rendering as well
+        /// </summary>
         private bool colorsOn;
 
         private ConsoleColor accentColor = ConsoleColor.Cyan;
 
         private ConsoleColor errorColor = ConsoleColor.Yellow;
+
+        /// <summary>
+        /// Delegate for checking whether an input string is valid or not
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        delegate bool ConsoleInputValidator(string input);
 
         static void Main(string[] args)
         {
@@ -49,15 +59,14 @@ namespace Minesweeper
 ");
             Console.WriteLine();
             WriteInColor("Welcome to Minesweeper! ", accentColor);
-            Console.Write("Would you like the board to render in color(");
+            Console.Write("Would you like the board to render in color? ");
             WriteYesOrNo();
-            Console.WriteLine(")? (Note: color games run slower, esp. for large boards)");
-            string input = Console.ReadLine();
-            while (input != "yes" && input != "no" && input != "y" && input != "n")
-            {
-                WriteInColor("Input not recognized. Type 'yes', 'no', 'y', or 'n'", errorColor);
-                input = Console.ReadLine();
-            }
+            Console.WriteLine();
+            Console.WriteLine("(Note: color games run slower, esp. for large boards)");
+            string input = GetValidStringInput(
+                s => s == "yes" || s == "no" || s == "y" || s == "n",
+                "Input not recognized. Type 'yes', 'no', 'y', or 'n'"
+            );
             colorsOn = input == "yes" || input == "y";
         }
 
@@ -72,28 +81,26 @@ namespace Minesweeper
             if (gameIsWon)
             {
                 PrintWorld();
-                message = "You win! :D Play again (y/n)?";
+                message = "You win! :D ";
             }
             else
             {
                 // reveal all tiles
                 theController.theMinefield.RevealAllTiles();
                 PrintWorld();
-                message = "You lost :( Play again (y/n)?";
+                message = "You lost :( ";
             }
+            Console.Write(message);
+            Console.Write("Play again? ");
+            WriteYesOrNo();
+            Console.WriteLine();
 
-            Console.WriteLine(message);
+            string input = GetValidStringInput(s => s == "yes" || s == "no" || s == "y" || s == "n",
+                "Input not recognized. Type 'yes', 'no', 'y', or 'n'");
 
-            string input = Console.ReadLine();
-            while(input != "yes" && input != "no" && input != "y" && input != "n")
-            {
-                WriteInColor("Input not recognized. Type 'yes', 'no', 'y', or 'n'", errorColor);
-                input = Console.ReadLine();
-            }
             if (input == "yes" || input == "y")
                 NewGame();
 
-            // TODO: else, close the console
             Environment.Exit(0);
         }
         
@@ -117,37 +124,26 @@ namespace Minesweeper
 ╚══════════════════════════════════════════════════════════════════════════╝
 ");
 
-
-            int width;
-            int height;
-            int numMines;
-
             WriteInColor("Input board width", accentColor);
             Console.WriteLine(" (4-26, inclusive):");
-            string input = Console.ReadLine();
-            while (!int.TryParse(input, out width) || width > 26 || width < 4)
-            {
-                WriteInColor("Number was out of range of improperly formatted. Try again:", errorColor);
-                input = Console.ReadLine();
-            }
+            int width = int.Parse(GetValidStringInput(
+                s => (int.TryParse(s, out int n) && n <= 26 && n >= 4), 
+                "Number was out of range of improperly formatted. Try again:"
+            ));
 
             WriteInColor("Input board height", accentColor);
             Console.WriteLine(" (4-26, inclusive):");
-            input = Console.ReadLine();
-            while (!int.TryParse(input, out height) || height > 26 || height < 4)
-            {
-                WriteInColor("Number was out of range of improperly formatted. Try again:", errorColor);
-                input = Console.ReadLine();
-            }
+            int height = int.Parse(GetValidStringInput(
+                s => (int.TryParse(s, out int n) && n <= 26 && n >= 4), 
+                "Number was out of range of improperly formatted.Try again:"
+            ));
 
             WriteInColor("Input number of mines", accentColor);
             Console.WriteLine($" (min 1, max of {width * height} for board size {width}x{height}):");
-            input = Console.ReadLine();
-            while (!int.TryParse(input, out numMines) || numMines > width * height || numMines < 1)
-            {
-                WriteInColor("Number was out of range of improperly formatted. Try again:", errorColor);
-                input = Console.ReadLine();
-            }
+            int numMines = int.Parse(GetValidStringInput(
+                s => (int.TryParse(s, out int n) && n <= width * height && n >= 1), 
+                "Number was out of range of improperly formatted.Try again:"
+            ));
 
             theController.NewGame(width, height, numMines);
 
@@ -200,7 +196,6 @@ namespace Minesweeper
         private void PrintWorld()
         {
             // print letter guides
-            // Should use C# equivalent to Java StringBuilder in next version
             string lineToWrite = "    ";
             for (int i = 0; i < theController.theMinefield.Width; i++)
                 lineToWrite += $"{(char)('a' + i)} ";
@@ -245,6 +240,7 @@ namespace Minesweeper
                         if (t.IsHidden)
                         {
                             Console.BackgroundColor = ConsoleColor.Gray;
+                            Console.ForegroundColor = ConsoleColor.Black;
                         }
                         else
                         {
@@ -327,6 +323,23 @@ namespace Minesweeper
         }
 
         /// <summary>
+        /// Waits for the user to input a valid line, prompting the given error message until the input meets the specifications designated in the delegate
+        /// </summary>
+        /// <param name=""></param>
+        /// <returns></returns>
+        private string GetValidStringInput(ConsoleInputValidator isValid, string errorMessage)
+        {
+            string input = Console.ReadLine();
+            while (!isValid(input))
+            {
+                WriteInColor(errorMessage, errorColor);
+                Console.WriteLine();
+                input = Console.ReadLine();
+            }
+            return input;
+        }
+
+        /// <summary>
         /// Prints the desired string in rainbow text.
         /// </summary>
         /// <param name="line"></param>
@@ -362,6 +375,8 @@ namespace Minesweeper
         /// </summary>
         private void WriteYesOrNo()
         {
+            Console.ResetColor();
+            Console.Write("(");
             Console.ForegroundColor = ConsoleColor.Green;
             Console.Write("y");
             Console.ResetColor();
@@ -369,6 +384,7 @@ namespace Minesweeper
             Console.ForegroundColor = ConsoleColor.Red;
             Console.Write("n");
             Console.ResetColor();
+            Console.Write(")");
         }
 
         /// <summary>
