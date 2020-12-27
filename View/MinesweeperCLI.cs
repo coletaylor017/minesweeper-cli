@@ -1,5 +1,6 @@
-using System;
+﻿using System;
 using System.Drawing;
+using System.Text;
 
 namespace Minesweeper
 {
@@ -13,10 +14,18 @@ namespace Minesweeper
         /// </summary>
         GameController theController = new GameController();
 
-        bool showControlHints = true;
+        private bool showControlHints = true;
+
+        private bool colorsOn;
+
+        private ConsoleColor accentColor = ConsoleColor.Cyan;
+
+        private ConsoleColor errorColor = ConsoleColor.Yellow;
 
         static void Main(string[] args)
         {
+            Console.OutputEncoding = System.Text.Encoding.UTF8; // allow flag & mine characters
+
             MinesweeperCLI cli = new MinesweeperCLI();
             cli.NewGame();
             Console.Read(); // keep console open
@@ -26,6 +35,30 @@ namespace Minesweeper
         {
             theController.GameOver += EndGame;
 
+            WriteRainbowLine(@"
+╔══════════════════════════════════════════════════════════════════════════╗
+║  |  \/  |(_)                                                             ║
+║  | .  . | _  _ __    ___  ___ __      __  ___   ___  _ __    ___  _ __   ║
+║  | |\/| || || '_ \  / _ \/ __|\ \ /\ / / / _ \ / _ \| '_ \  / _ \| '__|  ║
+║  | |  | || || | | ||  __/\__ \ \ V  V / |  __/|  __/| |_) ||  __/| |     ║
+║  \_|  |_/|_||_| |_| \___||___/  \_/\_/   \___| \___|| .__/  \___||_|     ║
+║                                                     | |                  ║
+║                                                     |_|                  ║
+╚══════════════════════════════════════════════════════════════════════════╝
+                                                          © Cole Taylor 2020
+");
+            Console.WriteLine();
+            WriteInColor("Welcome to Minesweeper! ", accentColor);
+            Console.Write("Would you like the board to render in color(");
+            WriteYesOrNo();
+            Console.WriteLine(")? (Note: color games run slower, esp. for large boards)");
+            string input = Console.ReadLine();
+            while (input != "yes" && input != "no" && input != "y" && input != "n")
+            {
+                WriteInColor("Input not recognized. Type 'yes', 'no', 'y', or 'n'", errorColor);
+                input = Console.ReadLine();
+            }
+            colorsOn = input == "yes" || input == "y";
         }
 
         /// <summary>
@@ -54,7 +87,7 @@ namespace Minesweeper
             string input = Console.ReadLine();
             while(input != "yes" && input != "no" && input != "y" && input != "n")
             {
-                Console.WriteLine("Input not recognized. Type 'yes', 'no', 'y', or 'no'");
+                WriteInColor("Input not recognized. Type 'yes', 'no', 'y', or 'n'", errorColor);
                 input = Console.ReadLine();
             }
             if (input == "yes" || input == "y")
@@ -71,30 +104,48 @@ namespace Minesweeper
         {
             Console.Clear();
 
+            WriteRainbowLine(@"
+╔══════════════════════════════════════════════════════════════════════════╗
+║     _____                             _____        _                     ║
+║    |  __ \                           /  ___|      | |                    ║
+║    | |  \/  __ _  _ __ ___    ___    \ `--.   ___ | |_  _   _  _ __      ║
+║    | | __  / _` || '_ ` _ \  / _ \    `--. \ / _ \| __|| | | || '_ \     ║
+║    | |_\ \| (_| || | | | | ||  __/   /\__/ /|  __/| |_ | |_| || |_) |    ║
+║     \____/ \__,_||_| |_| |_| \___|   \____/  \___| \__| \__,_|| .__/     ║
+║                                                               | |        ║
+║                                                               |_|        ║
+╚══════════════════════════════════════════════════════════════════════════╝
+");
+
+
             int width;
             int height;
             int numMines;
 
-            Console.WriteLine("Welcome to Minesweeper! Input world width (4-26, inclusive):");
+            WriteInColor("Input board width", accentColor);
+            Console.WriteLine(" (4-26, inclusive):");
             string input = Console.ReadLine();
             while (!int.TryParse(input, out width) || width > 26 || width < 4)
             {
-                Console.WriteLine("Number was out of range of improperly formatted. Try again:");
-                input = Console.ReadLine();
-            }
-            Console.WriteLine("Input world height (4-26, inclusive):");
-            input = Console.ReadLine();
-            while (!int.TryParse(input, out height) || height > 26 || height < 4)
-            {
-                Console.WriteLine("Number was out of range of improperly formatted. Try again:");
+                WriteInColor("Number was out of range of improperly formatted. Try again:", errorColor);
                 input = Console.ReadLine();
             }
 
-            Console.WriteLine($"Input number of mines (min 1, max of {width * height} for world size {width}x{height}):");
+            WriteInColor("Input board height", accentColor);
+            Console.WriteLine(" (4-26, inclusive):");
+            input = Console.ReadLine();
+            while (!int.TryParse(input, out height) || height > 26 || height < 4)
+            {
+                WriteInColor("Number was out of range of improperly formatted. Try again:", errorColor);
+                input = Console.ReadLine();
+            }
+
+            WriteInColor("Input number of mines", accentColor);
+            Console.WriteLine($" (min 1, max of {width * height} for board size {width}x{height}):");
             input = Console.ReadLine();
             while (!int.TryParse(input, out numMines) || numMines > width * height || numMines < 1)
             {
-                Console.WriteLine("Number was out of range of improperly formatted. Try again:");
+                WriteInColor("Number was out of range of improperly formatted. Try again:", errorColor);
                 input = Console.ReadLine();
             }
 
@@ -173,55 +224,58 @@ namespace Minesweeper
 
                 Console.Write("|");
 
+                StringBuilder sb = new StringBuilder();
                 for (int col = 0; col < theController.theMinefield.Width; col++)
                 {
-                    String toWrite = "";
+                    string toWrite = "";
                     Tile t = theController.theMinefield.GetTile(col, row);
                     if (t.IsFlagged)
-                        toWrite += "f ";
+                        toWrite += "▲ ";
                     else if (t.IsHidden)
-                        toWrite += "  ";
+                        toWrite += colorsOn ? "  " : "░░";
                     else if (t.IsMine)
-                        toWrite += "M ";
+                        toWrite += "҉ ";
                     else if (t.Value == 0)
                         toWrite += "  ";
                     else
                         toWrite += t.Value + " ";
 
-                    if (t.IsHidden)
+                    if (colorsOn)
                     {
-                        Console.BackgroundColor = ConsoleColor.Gray;
-                        Console.ForegroundColor = ConsoleColor.Black;
-                    }
-                    else
-                    {
-                        if (t.IsMine)
+                        if (t.IsHidden)
                         {
-                            Console.BackgroundColor = ConsoleColor.Red;
-                            Console.ForegroundColor = ConsoleColor.Black;
+                            Console.BackgroundColor = ConsoleColor.Gray;
                         }
                         else
                         {
-                            switch(t.Value)
+                            if (t.IsMine)
                             {
-                                case 0:
-                                    Console.ForegroundColor = ConsoleColor.Black;
-                                    break;
-                                case 1:
-                                    Console.ForegroundColor = ConsoleColor.Blue;
-                                    break;
-                                case 2:
-                                    Console.ForegroundColor = ConsoleColor.Green;
-                                    break;
-                                case 3:
-                                    Console.ForegroundColor = ConsoleColor.Red;
-                                    break;
-                                case 4:
-                                    Console.ForegroundColor = ConsoleColor.Yellow;
-                                    break;
-                                default:
-                                    Console.ForegroundColor = ConsoleColor.Magenta;
-                                    break;
+                                Console.BackgroundColor = ConsoleColor.Red;
+                                Console.ForegroundColor = ConsoleColor.Black;
+                            }
+                            else
+                            {
+                                switch (t.Value)
+                                {
+                                    case 0:
+                                        Console.ForegroundColor = ConsoleColor.Black;
+                                        break;
+                                    case 1:
+                                        Console.ForegroundColor = ConsoleColor.Blue;
+                                        break;
+                                    case 2:
+                                        Console.ForegroundColor = ConsoleColor.Green;
+                                        break;
+                                    case 3:
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        break;
+                                    case 4:
+                                        Console.ForegroundColor = ConsoleColor.Yellow;
+                                        break;
+                                    default:
+                                        Console.ForegroundColor = ConsoleColor.Magenta;
+                                        break;
+                                }
                             }
                         }
                     }
@@ -229,29 +283,103 @@ namespace Minesweeper
                     // invert if the cursor is over the current cell
                     if (row == theController.theMinefield.SelectedRow && col == theController.theMinefield.SelectedCol)
                     {
-                        if (t.IsHidden || (!t.IsHidden && t.Value == 0))
+                        if (colorsOn)
                         {
-                            Console.BackgroundColor = ConsoleColor.White;
+                            if (t.IsHidden || (!t.IsHidden && t.Value == 0))
+                            {
+                                Console.BackgroundColor = ConsoleColor.White;
+                            }
+                            else
+                            {
+                                // swap colors
+                                ConsoleColor oldBgColor = Console.BackgroundColor;
+                                Console.BackgroundColor = Console.ForegroundColor;
+                                Console.ForegroundColor = oldBgColor;
+                            }
                         }
                         else
                         {
-                            // swap colors
-                            ConsoleColor oldBgColor = Console.BackgroundColor;
-                            Console.BackgroundColor = Console.ForegroundColor;
-                            Console.ForegroundColor = oldBgColor;
+                            toWrite = "╬ ";
                         }
-
                     }
 
-                    Console.Write(toWrite);
-
-                    // reset colors
-                    Console.ResetColor();
+                    // if we are in color mode, write string and reset for the next one
+                    if (colorsOn)
+                    {
+                        Console.Write(toWrite);
+                        Console.ResetColor();
+                    }
+                    // if in black and white mode, add string to the string builder
+                    else
+                    {
+                        sb.Append(toWrite);
+                    }
                 }
 
-                // new line
-                Console.WriteLine();
+                // end of line
+                if (colorsOn)
+                    // new line
+                    Console.WriteLine();
+                else
+                    Console.WriteLine(sb.ToString());
+
             }
+        }
+
+        /// <summary>
+        /// Prints the desired string in rainbow text.
+        /// </summary>
+        /// <param name="line"></param>
+        private void WriteRainbowLine(string line)
+        {
+            ConsoleColor[] rainbowSequence =
+            {
+                ConsoleColor.DarkRed,
+                ConsoleColor.Red,
+                ConsoleColor.DarkYellow,
+                ConsoleColor.Cyan,
+                ConsoleColor.Green,
+                ConsoleColor.DarkGreen,
+                ConsoleColor.DarkCyan,
+                ConsoleColor.Blue,
+                ConsoleColor.DarkBlue,
+                ConsoleColor.DarkMagenta,
+                ConsoleColor.Magenta
+            };
+
+            for (int i = 0; i < line.Length; i++)
+            {
+                Console.ForegroundColor = rainbowSequence[i % rainbowSequence.Length];
+                Console.Write(line[i]);
+            }
+            Console.WriteLine();
+
+            Console.ResetColor();
+        }
+
+        /// <summary>
+        /// Writes a colorful y/n to the console
+        /// </summary>
+        private void WriteYesOrNo()
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.Write("y");
+            Console.ResetColor();
+            Console.Write("/");
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.Write("n");
+            Console.ResetColor();
+        }
+
+        /// <summary>
+        /// Writes the specified string in the specified color, then resets the console color to its default.
+        /// </summary>
+        /// <param name="s"></param>
+        private void WriteInColor(string s, ConsoleColor c)
+        {
+            Console.ForegroundColor = c;
+            Console.Write(s);
+            Console.ResetColor();
         }
     }
 }
