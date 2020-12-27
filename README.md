@@ -4,4 +4,4 @@
 
 A Basic C# implementation of classic Minesweeper. Uses MVC architecture, so a point-and-click GUI could be implemented fairly easily in the future by interfacing with existing controller-defined methods. 
 
-Controls are explained in-game. Renders slowly for grid sizes >12 or so due to printing multiple colors. A faster greyscale option is a possible future improvement. 
+Controls are explained in-game. You can choose to render the game board as greyscale or color. Grayscale renders faster, so it is better for larger boards.
