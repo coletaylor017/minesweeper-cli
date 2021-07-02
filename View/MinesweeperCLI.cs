@@ -202,69 +202,67 @@ namespace Minesweeper
             Console.WriteLine(lineToWrite);
 
             // data is stored in columns of rows, but we have to get it to rows of columns in order to print it out
+
+            StringBuilder sb = new StringBuilder();
+
             for (int row = 0; row < theController.theMinefield.Height; row++)
             {
-                Console.Write((row + 1));
+                sb.Append((row + 1));
 
                 // print white space to align left border regardless of number of digits
                 for (int i = 0; i < (3 - (row + 1).ToString().Length); i++)
-                    Console.Write(" ");
+                    sb.Append(" ");
 
-                Console.Write("|");
+                sb.Append("|");
 
-                StringBuilder sb = new StringBuilder();
                 for (int col = 0; col < theController.theMinefield.Width; col++)
                 {
                     string toWrite = "";
                     Tile t = theController.theMinefield.GetTile(col, row);
                     if (t.IsFlagged)
-                        toWrite += "▲ ";
+                        toWrite = "▲ ";
                     else if (t.IsHidden)
-                        toWrite += colorsOn ? "  " : "░░";
+                        toWrite = "\u001b[37m░░\u001b[0m";
                     else if (t.IsMine)
-                        toWrite += "҉ ";
+                        toWrite = "҉ ";
                     else if (t.Value == 0)
-                        toWrite += "  ";
+                        toWrite = "  ";
                     else
-                        toWrite += t.Value + " ";
+                        toWrite = t.Value + " ";
 
-                    if (colorsOn)
+                    if (t.IsHidden)
                     {
-                        if (t.IsHidden)
+                        // if hidden use ANSI codes for grey bg and black text
+                    }
+                    else
+                    {
+                        if (t.IsMine)
                         {
-                            Console.BackgroundColor = ConsoleColor.Gray;
-                            Console.ForegroundColor = ConsoleColor.Black;
+                            //Console.BackgroundColor = ConsoleColor.Red;
+                            //Console.ForegroundColor = ConsoleColor.Black;
                         }
                         else
                         {
-                            if (t.IsMine)
+                            switch (t.Value)
                             {
-                                Console.BackgroundColor = ConsoleColor.Red;
-                                Console.ForegroundColor = ConsoleColor.Black;
-                            }
-                            else
-                            {
-                                switch (t.Value)
-                                {
-                                    case 0:
-                                        Console.ForegroundColor = ConsoleColor.Black;
-                                        break;
-                                    case 1:
-                                        Console.ForegroundColor = ConsoleColor.Blue;
-                                        break;
-                                    case 2:
-                                        Console.ForegroundColor = ConsoleColor.Green;
-                                        break;
-                                    case 3:
-                                        Console.ForegroundColor = ConsoleColor.Red;
-                                        break;
-                                    case 4:
-                                        Console.ForegroundColor = ConsoleColor.Yellow;
-                                        break;
-                                    default:
-                                        Console.ForegroundColor = ConsoleColor.Magenta;
-                                        break;
-                                }
+                                case 0:
+                                    toWrite = "  ";
+                                    break;
+                                case 1:
+                                    toWrite = "\u001b[34m" + t.Value + " \u001b[0m"; //blue
+                                    break;
+                                case 2:
+                                    toWrite = "\u001b[32m" + t.Value + " \u001b[0m"; //green
+                                    break;
+                                case 3:
+                                    toWrite = "\u001b[31m" + t.Value + " \u001b[0m"; //red
+                                    break;
+                                case 4:
+                                    toWrite = "\u001b[33m" + t.Value + " \u001b[0m"; //yellow
+                                    break;
+                                default:
+                                    toWrite = "\u001b[35m" + t.Value + " \u001b[0m"; //magenta
+                                    break;
                             }
                         }
                     }
@@ -272,47 +270,33 @@ namespace Minesweeper
                     // invert if the cursor is over the current cell
                     if (row == theController.theMinefield.SelectedRow && col == theController.theMinefield.SelectedCol)
                     {
-                        if (colorsOn)
-                        {
+
                             if (t.IsHidden || (!t.IsHidden && t.Value == 0))
                             {
-                                Console.BackgroundColor = ConsoleColor.White;
+                                //Console.BackgroundColor = ConsoleColor.White;
                             }
                             else
                             {
                                 // swap colors
-                                ConsoleColor oldBgColor = Console.BackgroundColor;
-                                Console.BackgroundColor = Console.ForegroundColor;
-                                Console.ForegroundColor = oldBgColor;
+                                //ConsoleColor oldBgColor = Console.BackgroundColor;
+                                //Console.BackgroundColor = Console.ForegroundColor;
+                                //Console.ForegroundColor = oldBgColor;
                             }
-                        }
-                        else
-                        {
-                            toWrite = "╬ ";
-                        }
+
+                            toWrite = "\u001b[31m╬ \u001b[0m";
                     }
 
-                    // if we are in color mode, write string and reset for the next one
-                    if (colorsOn)
-                    {
-                        Console.Write(toWrite);
-                        Console.ResetColor();
-                    }
-                    // if in black and white mode, add string to the string builder
-                    else
-                    {
-                        sb.Append(toWrite);
-                    }
+                    // add synbol to the string builder and reset the current ANSI code
+                    sb.Append(toWrite);
                 }
 
-                // end of line
-                if (colorsOn)
-                    // new line
-                    Console.WriteLine();
-                else
-                    Console.WriteLine(sb.ToString());
+                // append end of line
+                sb.Append("\r\n");
 
             }
+
+            // finally, print the entire board
+            Console.WriteLine(sb.ToString());
         }
 
         /// <summary>
