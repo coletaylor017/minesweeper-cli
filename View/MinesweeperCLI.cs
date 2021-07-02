@@ -6,6 +6,7 @@ namespace Minesweeper
 {
     /// <summary>
     /// Command line implementation of a minesweeper user interface. Takes user inputs, validates them, invokes the appropriate controller commands, and converts the world state into displayable text. 
+    /// Constructing this class starts a new game. 
     /// </summary>
     class MinesweeperCLI
     {
@@ -41,6 +42,9 @@ namespace Minesweeper
             Console.Read(); // keep console open
         }
 
+        /// <summary>
+        /// Constructs a new MinecweeperCLI and all other classes needed for a new Minesweeper game. Then starts the game. 
+        /// </summary>
         public MinesweeperCLI()
         {
             theController.GameOver += EndGame;
@@ -123,13 +127,14 @@ namespace Minesweeper
                 s => (int.TryParse(s, out int n) && n <= 50 && n >= 4), 
                 "Number was out of range of improperly formatted. Try again:"
             ));
+            int height = width;
 
-            WriteInColor("Input board height", accentColor);
-            Console.WriteLine(" (4-50, inclusive):");
-            int height = int.Parse(GetValidStringInput(
-                s => (int.TryParse(s, out int n) && n <= 50 && n >= 4), 
-                "Number was out of range of improperly formatted.Try again:"
-            ));
+            //WriteInColor("Input board height", accentColor);
+            //Console.WriteLine(" (4-50, inclusive):");
+            //int height = int.Parse(GetValidStringInput(
+            //    s => (int.TryParse(s, out int n) && n <= 50 && n >= 4), 
+            //    "Number was out of range of improperly formatted.Try again:"
+            //));
 
             WriteInColor("Input number of mines", accentColor);
             Console.WriteLine($" (min 1, max of {width * height} for board size {width}x{height}):");
@@ -156,11 +161,14 @@ namespace Minesweeper
             Console.WriteLine(theController.statusMessage);
             if (showControlHints)
                 Console.WriteLine("Use arrow keys to select a space, d to dig, and f to flag (press h to show/hide this message)");
+            
+            // Set the cursor position based on the model
+            Console.SetCursorPosition(theController.CursorX * 2 + 4, theController.CursorY + 2);
             ConsoleKeyInfo inputKeyInfo = Console.ReadKey(false);
             switch (inputKeyInfo.Key)
             {
                 case ConsoleKey.UpArrow:
-                    theController.MoveCursorUp();
+                    theController.MoveCursorUp(); // Moves the cursor up in the model, now move it up visually
                     break;
                 case ConsoleKey.DownArrow:
                     theController.MoveCursorDown();

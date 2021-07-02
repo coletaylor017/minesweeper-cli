@@ -27,6 +27,16 @@ namespace Minesweeper
         public string statusMessage = "Selected: a1";
 
         /// <summary>
+        /// The X position of the cursor. 
+        /// </summary>
+        public int CursorX { get { return theMinefield.SelectedCol; } }
+
+        /// <summary>
+        /// The vertical position of the cursor. 
+        /// </summary>
+        public int CursorY { get { return theMinefield.SelectedRow; } }
+
+        /// <summary>
         /// Move the current tile selection up one square
         /// </summary>
         public void MoveCursorUp()
