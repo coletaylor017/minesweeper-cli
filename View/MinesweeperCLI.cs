@@ -59,15 +59,8 @@ namespace Minesweeper
 ");
             Console.WriteLine();
             WriteInColor("Welcome to Minesweeper! ", accentColor);
-            Console.Write("Would you like the board to render in color? ");
-            WriteYesOrNo();
-            Console.WriteLine();
-            Console.WriteLine("(Note: color games run slower, esp. for large boards)");
-            string input = GetValidStringInput(
-                s => s == "yes" || s == "no" || s == "y" || s == "n",
-                "Input not recognized. Type 'yes', 'no', 'y', or 'n'"
-            );
-            colorsOn = input == "yes" || input == "y";
+            Console.WriteLine("Press any key to start. ");
+            Console.ReadKey();
         }
 
         /// <summary>
@@ -125,16 +118,16 @@ namespace Minesweeper
 ");
 
             WriteInColor("Input board width", accentColor);
-            Console.WriteLine(" (4-26, inclusive):");
+            Console.WriteLine(" (4-50, inclusive):");
             int width = int.Parse(GetValidStringInput(
-                s => (int.TryParse(s, out int n) && n <= 26 && n >= 4), 
+                s => (int.TryParse(s, out int n) && n <= 50 && n >= 4), 
                 "Number was out of range of improperly formatted. Try again:"
             ));
 
             WriteInColor("Input board height", accentColor);
-            Console.WriteLine(" (4-26, inclusive):");
+            Console.WriteLine(" (4-50, inclusive):");
             int height = int.Parse(GetValidStringInput(
-                s => (int.TryParse(s, out int n) && n <= 26 && n >= 4), 
+                s => (int.TryParse(s, out int n) && n <= 50 && n >= 4), 
                 "Number was out of range of improperly formatted.Try again:"
             ));
 
