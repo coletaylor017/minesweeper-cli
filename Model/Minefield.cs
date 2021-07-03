@@ -91,20 +91,23 @@ namespace Minesweeper
         }
 
         /// <summary>
-        /// Reveals the tile at the specified coordinates as well as all the tiles that are revealed as a result. If it was a mine, returns true, else, returns false. 
+        /// Reveals the tile at the specified coordinates as well as all the tiles that are revealed as a result.
+        /// Returns a list of all the tiles that were revealed as a result of the dig.
         /// </summary>
         /// <param name="col"></param>
         /// <param name="row"></param>
         /// <returns></returns>
-        public bool Dig(int col, int row)
+        public ISet<Tile> Dig(int col, int row)
         {
             // mark all tiles as unvisited 
             foreach (Tile t in IterateAllTiles())
                 t.Visited = false;
 
-            RevealTileAndNeighbors(col, row); // recursively reveal an entire chunk
+            // keep track of all tiles that are revealed as a result of this dig
+            HashSet<Tile> revealedTiles = new HashSet<Tile>(); 
+            RevealTileAndNeighbors(col, row, revealedTiles); // recursively reveal an entire chunk
             field[col][row].IsFlagged = false;
-            return field[col][row].IsMine;
+            return revealedTiles;
         }
 
         /// <summary>
@@ -156,15 +159,17 @@ namespace Minesweeper
 
         /// <summary>
         /// Reveals a tile, and recursively does this on all its neighbors if they are hidden, empty, and unflagged
+        /// 
         /// </summary>
         /// <param name="col"></param>
         /// <param name="row"></param>
         /// <returns></returns>
-        private void RevealTileAndNeighbors(int col, int row)
+        private void RevealTileAndNeighbors(int col, int row, ISet<Tile> revealedTiles)
         {
             Tile t = field[col][row];
             t.IsHidden = false;
             t.Visited = true;
+            revealedTiles.Add(t);
             foreach (Tile neighbor in IterateNeighbors(col, row))
             {
                 // reveal neighbors
@@ -174,7 +179,7 @@ namespace Minesweeper
                 // Only recur when this cell's neighbors are empty, non-flagged, mine-free, and unvisited by this algorithm.
                 // Base cases are: neighbor is nonzero, flagged, mine, or has already been visited.
                 if (neighbor.Value == 0 && !neighbor.IsMine && !neighbor.IsFlagged && !neighbor.Visited)
-                    RevealTileAndNeighbors(neighbor.Col, neighbor.Row);
+                    RevealTileAndNeighbors(neighbor.Col, neighbor.Row, revealedTiles);
             }
         }
     }

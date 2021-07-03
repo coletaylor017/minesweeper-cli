@@ -144,6 +144,7 @@ namespace Minesweeper
             ));
 
             theController.NewGame(width, height, numMines);
+            PrintWorld();
 
             while (true) // should still exit when user presses normal console exit key combo
             {
@@ -156,8 +157,6 @@ namespace Minesweeper
         /// </summary>
         private void RenderFrame()
         {
-            Console.Clear();
-            PrintWorld();
             Console.WriteLine(theController.statusMessage);
             if (showControlHints)
                 Console.WriteLine("Use arrow keys to select a space, d to dig, and f to flag (press h to show/hide this message)");
@@ -187,6 +186,9 @@ namespace Minesweeper
                     break;
                 case ConsoleKey.F:
                     theController.ToggleFlag();
+                    break;
+                case ConsoleKey.E:
+                    Console.Write("e");
                     break;
             }
         }

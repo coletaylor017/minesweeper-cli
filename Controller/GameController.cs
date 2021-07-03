@@ -93,15 +93,22 @@ namespace Minesweeper
             Dig(theMinefield.SelectedCol, theMinefield.SelectedRow);
         }
 
-        public void Dig(int col, int row)
+        /// <summary>
+        /// Digs (reveals) the selected grid square
+        /// </summary>
+        /// <param name="col"></param>
+        /// <param name="row"></param>
+        /// <returns></returns>
+        public ISet<Tile> Dig(int col, int row)
         {
             if (theMinefield.GetTile(col, row).IsFlagged)
             {
                 statusMessage = "You must remove the flag before digging that space";
-                return;
+                return new HashSet<Tile>();
             }
 
-            if (theMinefield.Dig(col, row)) // if it was a mine
+            ISet<Tile> revealedTiles = theMinefield.Dig(col, row);
+            if (theMinefield.GetTile(col, row).IsMine) // if it was a mine
                 GameOver(false); // they lost
 
             bool hasWon = true;
@@ -117,6 +124,8 @@ namespace Minesweeper
 
             if (hasWon)
                 GameOver(true); // they won
+
+            return revealedTiles;
         }
 
         /// <summary>
