@@ -28,6 +28,11 @@ namespace Minesweeper
         public event Action<ISet<Tile>> BoardUpdated;
 
         /// <summary>
+        /// Signals that the board needs to be visually initialized with grid borders and labels
+        /// </summary>
+        public event Action InitBoard;
+
+        /// <summary>
         /// The status message to display below the game board
         /// </summary>
         public string statusMessage = "Selected: a1";
@@ -122,6 +127,13 @@ namespace Minesweeper
         public void NewGame(int width, int height, int numMines)
         {
             theMinefield = new Minefield(width, height, numMines);
+            // signal to the View that all grid squares need to be rendered
+            HashSet<Tile> allTiles = new HashSet<Tile>();
+            foreach (Tile t in theMinefield.IterateAllTiles())
+                allTiles.Add(t);
+
+            BoardUpdated(allTiles);
+            InitBoard();
         }
 
         /// <summary>
