@@ -124,9 +124,9 @@ namespace Minesweeper
 ");
 
             WriteInColor("Input board width", accentColor);
-            Console.WriteLine(" (4-50, inclusive):");
+            Console.WriteLine(" (4-45, inclusive):");
             int width = int.Parse(GetValidStringInput(
-                s => (int.TryParse(s, out int n) && n <= 50 && n >= 4), 
+                s => (int.TryParse(s, out int n) && n <= 45 && n >= 4), 
                 "Number was out of range of improperly formatted. Try again:"
             ));
             int height = width;
@@ -155,18 +155,15 @@ namespace Minesweeper
 
             while (true) // should still exit when user presses normal console exit key combo
             {
-                RenderFrame();
+                ReadInput();
             }
         }
 
         /// <summary>
-        /// Draws the game board once, then reads input and sends to the controller
+        /// Reads keyboard input and instructs the controller
         /// </summary>
-        private void RenderFrame()
+        private void ReadInput()
         {
-            
-            // Set the cursor position based on the model
-            Console.SetCursorPosition(theController.CursorX * 2 + 4, theController.CursorY + 2);
             ConsoleKeyInfo inputKeyInfo = Console.ReadKey(false);
             switch (inputKeyInfo.Key)
             {
@@ -191,17 +188,27 @@ namespace Minesweeper
                 case ConsoleKey.F:
                     theController.ToggleFlag();
                     break;
-                case ConsoleKey.E:
-                    Console.Write("e");
-                    break;
             }
         }
 
         private void HandleBoardUpdate(ISet<Tile> updatedTiles)
         {
+            // Set indicator message
+            Console.SetCursorPosition(0, theController.theMinefield.Height + 3);
+            Console.WriteLine(theController.statusMessage);
+
             foreach (Tile t in updatedTiles)
             {
                 Console.SetCursorPosition(t.Col * 2 + 4, t.Row + 2);
+
+                if (t.Row == theController.CursorX && t.Col == theController.CursorY)
+                {
+                    // invert colors to show which tile is selected
+                    //ConsoleColor prevBgColor = Console.BackgroundColor;
+                    //Console.BackgroundColor = Console.ForegroundColor;
+                    //Console.ForegroundColor = Console.BackgroundColor;
+                    //Console.Write("\u001b[7m");
+                }
 
                 if (t.IsFlagged)
                     Console.Write("▲ ");
@@ -234,6 +241,13 @@ namespace Minesweeper
                     }
                 }
             }
+
+            // Draw pretty cursor and set Console Cursor position out of the way
+            Console.SetCursorPosition(theController.CursorX * 2 + 4, theController.CursorY + 2);
+            Console.Write("\u001b[31m╬ \u001b[0m");
+
+            Console.SetCursorPosition(0, 0);
+
         }
 
         /// <summary>

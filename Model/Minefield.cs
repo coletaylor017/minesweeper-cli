@@ -174,7 +174,10 @@ namespace Minesweeper
             {
                 // reveal neighbors
                 if (!neighbor.IsMine && !neighbor.IsFlagged)
+                {
                     neighbor.IsHidden = false;
+                    revealedTiles.Add(neighbor);
+                }
 
                 // Only recur when this cell's neighbors are empty, non-flagged, mine-free, and unvisited by this algorithm.
                 // Base cases are: neighbor is nonzero, flagged, mine, or has already been visited.

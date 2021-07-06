@@ -47,10 +47,17 @@ namespace Minesweeper
         /// </summary>
         public void MoveCursorUp()
         {
+            // keep track of the previously selected tile bc it will need to be visually updated when it is deselected
+            HashSet<Tile> prevTile = new HashSet<Tile>();
+            prevTile.Add(theMinefield.GetTile(theMinefield.SelectedCol, theMinefield.SelectedRow));
+
             if (theMinefield.SelectedRow > 0)
                 theMinefield.SelectedRow--;
 
             statusMessage = "Selected: " + (char)('a' + theMinefield.SelectedCol) + (theMinefield.SelectedRow + 1);
+
+            // indicate that the cursor and status message, as well as the previously selected tile, need to be visually updated
+            BoardUpdated(prevTile);
         }
 
         /// <summary>
@@ -58,10 +65,18 @@ namespace Minesweeper
         /// </summary>
         public void MoveCursorDown()
         {
+            // keep track of the previously selected tile bc it will need to be visually updated when it is deselected
+            HashSet<Tile> prevTile = new HashSet<Tile>();
+            prevTile.Add(theMinefield.GetTile(theMinefield.SelectedCol, theMinefield.SelectedRow));
+
             if (theMinefield.SelectedRow < theMinefield.Height - 1)
                 theMinefield.SelectedRow++;
 
             statusMessage = "Selected: " + (char)('a' + theMinefield.SelectedCol) + (theMinefield.SelectedRow + 1);
+
+            
+            // indicate that the cursor and status message, as well as the previously selected tile, need to be visually updated
+            BoardUpdated(prevTile);
         }
 
         /// <summary>
@@ -69,10 +84,17 @@ namespace Minesweeper
         /// </summary>
         public void MoveCursorLeft()
         {
+            // keep track of the previously selected tile bc it will need to be visually updated when it is deselected
+            HashSet<Tile> prevTile = new HashSet<Tile>();
+            prevTile.Add(theMinefield.GetTile(theMinefield.SelectedCol, theMinefield.SelectedRow));
+
             if (theMinefield.SelectedCol > 0)
                 theMinefield.SelectedCol--;
 
             statusMessage = "Selected: " + (char)('a' + theMinefield.SelectedCol) + (theMinefield.SelectedRow + 1);
+
+            // indicate that the cursor and status message, as well as the previously selected tile, need to be visually updated
+            BoardUpdated(prevTile);
         }
 
         /// <summary>
@@ -80,10 +102,17 @@ namespace Minesweeper
         /// </summary>
         public void MoveCursorRight()
         {
+            // keep track of the previously selected tile bc it will need to be visually updated when it is deselected
+            HashSet<Tile> prevTile = new HashSet<Tile>();
+            prevTile.Add(theMinefield.GetTile(theMinefield.SelectedCol, theMinefield.SelectedRow));
+
             if (theMinefield.SelectedCol < theMinefield.Width - 1)
                 theMinefield.SelectedCol++;
 
             statusMessage = "Selected: " + (char)('a' + theMinefield.SelectedCol) + (theMinefield.SelectedRow + 1);
+
+            // indicate that the cursor and status message, as well as the previously selected tile, need to be visually updated
+            BoardUpdated(prevTile);
         }
 
         public void NewGame(int width, int height, int numMines)
