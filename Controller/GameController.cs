@@ -193,7 +193,8 @@ namespace Minesweeper
         /// <param name="row"></param>
         public void ToggleFlag()
         {
-            if (theMinefield.GetTile(theMinefield.SelectedCol, theMinefield.SelectedRow).IsHidden)
+            Tile selectedTile = theMinefield.GetTile(theMinefield.SelectedCol, theMinefield.SelectedRow);
+            if (selectedTile.IsHidden)
             {
                 theMinefield.ToggleFlag(theMinefield.SelectedCol, theMinefield.SelectedRow);
                 if (theMinefield.GetTile(theMinefield.SelectedCol, theMinefield.SelectedRow).IsFlagged)
@@ -204,7 +205,9 @@ namespace Minesweeper
             else
                 statusMessage = "You cannot flag an already revealed space";
 
-            BoardUpdated(new HashSet<Tile>());
+            HashSet<Tile> flaggedTile = new HashSet<Tile>();
+            flaggedTile.Add(selectedTile);
+            BoardUpdated(flaggedTile);
         }
 
         /// <summary>

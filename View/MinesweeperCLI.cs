@@ -75,7 +75,7 @@ namespace Minesweeper
         {
             Console.SetCursorPosition(0, theController.theMinefield.Height + 5);
             Console.Write(gameIsWon ? "You win! :D" : "You lost :(");
-            Console.Write("Play again? ");
+            Console.Write(" Play again? ");
             WriteYesOrNo();
             Console.WriteLine();
 
