@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
 
@@ -6,6 +7,7 @@ namespace Minesweeper
 {
     /// <summary>
     /// Command line implementation of a minesweeper user interface. Takes user inputs, validates them, invokes the appropriate controller commands, and converts the world state into displayable text. 
+    /// Constructing this class starts a new game. 
     /// </summary>
     class MinesweeperCLI
     {
@@ -16,14 +18,11 @@ namespace Minesweeper
 
         private bool showControlHints = true;
 
-        /// <summary>
-        /// Whether or not the game board renders in color. Changes the mechanics of the board rendering as well
-        /// </summary>
-        private bool colorsOn;
-
         private ConsoleColor accentColor = ConsoleColor.Cyan;
 
         private ConsoleColor errorColor = ConsoleColor.Yellow;
+
+        private String helpMessage = "Use arrow keys or HJKL to select a space, d to dig, and f to flag (press F1 to show/hide this message)";
 
         /// <summary>
         /// Delegate for checking whether an input string is valid or not
@@ -41,9 +40,14 @@ namespace Minesweeper
             Console.Read(); // keep console open
         }
 
+        /// <summary>
+        /// Constructs a new MinecweeperCLI and all other classes needed for a new Minesweeper game. Then starts the game. 
+        /// </summary>
         public MinesweeperCLI()
         {
-            theController.GameOver += EndGame;
+            theController.GameOver += HandleGameOver;
+            theController.BoardUpdated += HandleBoardUpdate;
+            theController.InitBoard += HandleInitBoard;
 
             WriteRainbowLine(@"
 ╔══════════════════════════════════════════════════════════════════════════╗
@@ -59,39 +63,19 @@ namespace Minesweeper
 ");
             Console.WriteLine();
             WriteInColor("Welcome to Minesweeper! ", accentColor);
-            Console.Write("Would you like the board to render in color? ");
-            WriteYesOrNo();
-            Console.WriteLine();
-            Console.WriteLine("(Note: color games run slower, esp. for large boards)");
-            string input = GetValidStringInput(
-                s => s == "yes" || s == "no" || s == "y" || s == "n",
-                "Input not recognized. Type 'yes', 'no', 'y', or 'n'"
-            );
-            colorsOn = input == "yes" || input == "y";
+            Console.WriteLine("Press any key to start. ");
+            Console.ReadKey();
         }
 
         /// <summary>
         /// Handles when the game ends, whether by blowing up a mine or by winning.
         /// </summary>
         /// <param name="gameIsWon"></param>
-        private void EndGame(bool gameIsWon)
+        private void HandleGameOver(bool gameIsWon)
         {
-            Console.Clear();
-            string message;
-            if (gameIsWon)
-            {
-                PrintWorld();
-                message = "You win! :D ";
-            }
-            else
-            {
-                // reveal all tiles
-                theController.theMinefield.RevealAllTiles();
-                PrintWorld();
-                message = "You lost :( ";
-            }
-            Console.Write(message);
-            Console.Write("Play again? ");
+            Console.SetCursorPosition(0, theController.theMinefield.Height + 5);
+            Console.Write(gameIsWon ? "You win! :D" : "You lost :(");
+            Console.Write(" Play again? ");
             WriteYesOrNo();
             Console.WriteLine();
 
@@ -105,7 +89,7 @@ namespace Minesweeper
         }
         
         /// <summary>
-        /// Gets the initial game parameters and starts the game event loop.
+        /// Gets the initial game parameters and then tells the controller to start the game. 
         /// </summary>
         private void NewGame()
         {
@@ -125,16 +109,16 @@ namespace Minesweeper
 ");
 
             WriteInColor("Input board width", accentColor);
-            Console.WriteLine(" (4-26, inclusive):");
+            Console.WriteLine(" (4-80, inclusive):");
             int width = int.Parse(GetValidStringInput(
-                s => (int.TryParse(s, out int n) && n <= 26 && n >= 4), 
+                s => (int.TryParse(s, out int n) && n <= 80 && n >= 4), 
                 "Number was out of range of improperly formatted. Try again:"
             ));
 
             WriteInColor("Input board height", accentColor);
-            Console.WriteLine(" (4-26, inclusive):");
+            Console.WriteLine(" (4-45, inclusive):");
             int height = int.Parse(GetValidStringInput(
-                s => (int.TryParse(s, out int n) && n <= 26 && n >= 4), 
+                s => (int.TryParse(s, out int n) && n <= 45 && n >= 4),
                 "Number was out of range of improperly formatted.Try again:"
             ));
 
@@ -146,180 +130,169 @@ namespace Minesweeper
             ));
 
             theController.NewGame(width, height, numMines);
-
-            while (true) // should still exit when user presses normal console exit key combo
-            {
-                RenderFrame();
-            }
         }
 
         /// <summary>
-        /// Draws the game board once, then reads input and sends to the controller
+        /// Reads keyboard input and instructs the controller
         /// </summary>
-        private void RenderFrame()
+        private void ReadInput()
         {
-            Console.Clear();
-            PrintWorld();
-            Console.WriteLine(theController.statusMessage);
-            if (showControlHints)
-                Console.WriteLine("Use arrow keys to select a space, d to dig, and f to flag (press h to show/hide this message)");
-            ConsoleKeyInfo inputKeyInfo = Console.ReadKey(false);
+            ConsoleKeyInfo inputKeyInfo = Console.ReadKey(true);
             switch (inputKeyInfo.Key)
             {
+                case ConsoleKey.K:
                 case ConsoleKey.UpArrow:
-                    theController.MoveCursorUp();
+                    theController.MoveCursorUp(); // Moves the cursor up in the model, now move it up visually
                     break;
+                case ConsoleKey.J:
                 case ConsoleKey.DownArrow:
                     theController.MoveCursorDown();
                     break;
+                case ConsoleKey.H:
                 case ConsoleKey.LeftArrow:
                     theController.MoveCursorLeft();
                     break;
+                case ConsoleKey.L:
                 case ConsoleKey.RightArrow:
                     theController.MoveCursorRight();
                     break;
                 case ConsoleKey.D:
                     theController.Dig();
                     break;
-                case ConsoleKey.H:
-                    showControlHints = !showControlHints;
-                    break;
                 case ConsoleKey.F:
                     theController.ToggleFlag();
+                    break;
+                case ConsoleKey.F1: // toggle control hints
+                    showControlHints = !showControlHints;
+                    // Set help message, if help message is turned on, else cover it up
+                    Console.SetCursorPosition(0, theController.theMinefield.Height + 4);
+                    if (showControlHints)
+                        Console.WriteLine(helpMessage);
+                    else // cover the message up
+                    {
+                        for (int i = 0; i < helpMessage.Length; i++)
+                            Console.Write(" "); // would be more efficient to use a StringBuilder but the message is short enough that it doesn't matter
+                    }
+
+                    // set cursor back to the top left
+                    Console.SetCursorPosition(0, 0);
                     break;
             }
         }
 
         /// <summary>
-        /// Prints the current world state to the console
+        /// Event handler for when some tiles need to be visually updated.
         /// </summary>
-        private void PrintWorld()
+        /// <param name="updatedTiles"></param>
+        private void HandleBoardUpdate(ISet<Tile> updatedTiles)
+        {
+            VisuallyUpdateTiles(updatedTiles);
+        }
+
+        /// <summary>
+        /// Takes a list of updated cells and updates them visually in the game grid. 
+        /// </summary>
+        /// <param name="tilesToUpdate"></param>
+        private void VisuallyUpdateTiles(ISet<Tile> tilesToUpdate)
+        {
+            // Set indicator message
+            Console.SetCursorPosition(0, theController.theMinefield.Height + 3);
+            Console.ForegroundColor = accentColor;
+            // cover up the previous message if it was longer
+            Console.WriteLine(theController.statusMessage + "                                                                                          ");
+            Console.ResetColor();
+
+
+            foreach (Tile t in tilesToUpdate)
+            {
+                Console.SetCursorPosition(t.Col * 2 + 4, t.Row + 2);
+
+                // invert colors to show which tile is selected
+                if (t.IsSelected)
+                    Console.Write("\u001b[7m");
+
+                if (t.IsFlagged)
+                    Console.Write("▲ ");
+                else if (t.IsHidden)
+                    Console.Write("\u001b[37m░░");
+                else if (t.IsMine)
+                    Console.Write("҉ ");
+                else
+                {
+                    switch (t.Value)
+                    {
+                        case 0:
+                            Console.Write("  ");
+                            break;
+                        case 1:
+                            Console.Write("\u001b[34m" + t.Value + " "); // blue
+                            break;
+                        case 2:
+                            Console.Write("\u001b[32m" + t.Value + " "); // green
+                            break;
+                        case 3:
+                            Console.Write("\u001b[31m" + t.Value + " "); // red
+                            break;
+                        case 4:
+                            Console.Write("\u001b[33m" + t.Value + " "); //yellow
+                            break;
+                        default:
+                            Console.Write("\u001b[35m" + t.Value + " "); //magenta
+                            break;
+                    }
+                }
+                Console.Write("\u001b[0m");
+            }
+
+            Console.SetCursorPosition(0, 0);
+        }
+
+        /// <summary>
+        /// Prints the gridlines, numbers, and letters for the game board and then starts the main game loop
+        /// </summary>
+        private void HandleInitBoard()
         {
             // print letter guides
-            string lineToWrite = "    ";
+            StringBuilder sb = new StringBuilder();
+            sb.Append("    ");
             for (int i = 0; i < theController.theMinefield.Width; i++)
-                lineToWrite += $"{(char)('a' + i)} ";
+                sb.Append($"{(char)('a' + i % 26)} ");
 
-            Console.WriteLine(lineToWrite);
+            sb.Append("\r\n");
 
-            lineToWrite = "    _";
+            sb.Append("    _");
             for (int i = 0; i < theController.theMinefield.Width * 2; i++)
-                lineToWrite += "_";
+                sb.Append("_");
 
-            Console.WriteLine(lineToWrite);
+            sb.Append("\r\n");
 
-            // data is stored in columns of rows, but we have to get it to rows of columns in order to print it out
+            // done appending top border, now go down the left edge and append line numbers
+
             for (int row = 0; row < theController.theMinefield.Height; row++)
             {
-                Console.Write((row + 1));
+                sb.Append((row + 1));
 
                 // print white space to align left border regardless of number of digits
                 for (int i = 0; i < (3 - (row + 1).ToString().Length); i++)
-                    Console.Write(" ");
+                    sb.Append(" ");
 
-                Console.Write("|");
+                sb.Append("|");
 
-                StringBuilder sb = new StringBuilder();
-                for (int col = 0; col < theController.theMinefield.Width; col++)
-                {
-                    string toWrite = "";
-                    Tile t = theController.theMinefield.GetTile(col, row);
-                    if (t.IsFlagged)
-                        toWrite += "▲ ";
-                    else if (t.IsHidden)
-                        toWrite += colorsOn ? "  " : "░░";
-                    else if (t.IsMine)
-                        toWrite += "҉ ";
-                    else if (t.Value == 0)
-                        toWrite += "  ";
-                    else
-                        toWrite += t.Value + " ";
-
-                    if (colorsOn)
-                    {
-                        if (t.IsHidden)
-                        {
-                            Console.BackgroundColor = ConsoleColor.Gray;
-                            Console.ForegroundColor = ConsoleColor.Black;
-                        }
-                        else
-                        {
-                            if (t.IsMine)
-                            {
-                                Console.BackgroundColor = ConsoleColor.Red;
-                                Console.ForegroundColor = ConsoleColor.Black;
-                            }
-                            else
-                            {
-                                switch (t.Value)
-                                {
-                                    case 0:
-                                        Console.ForegroundColor = ConsoleColor.Black;
-                                        break;
-                                    case 1:
-                                        Console.ForegroundColor = ConsoleColor.Blue;
-                                        break;
-                                    case 2:
-                                        Console.ForegroundColor = ConsoleColor.Green;
-                                        break;
-                                    case 3:
-                                        Console.ForegroundColor = ConsoleColor.Red;
-                                        break;
-                                    case 4:
-                                        Console.ForegroundColor = ConsoleColor.Yellow;
-                                        break;
-                                    default:
-                                        Console.ForegroundColor = ConsoleColor.Magenta;
-                                        break;
-                                }
-                            }
-                        }
-                    }
-
-                    // invert if the cursor is over the current cell
-                    if (row == theController.theMinefield.SelectedRow && col == theController.theMinefield.SelectedCol)
-                    {
-                        if (colorsOn)
-                        {
-                            if (t.IsHidden || (!t.IsHidden && t.Value == 0))
-                            {
-                                Console.BackgroundColor = ConsoleColor.White;
-                            }
-                            else
-                            {
-                                // swap colors
-                                ConsoleColor oldBgColor = Console.BackgroundColor;
-                                Console.BackgroundColor = Console.ForegroundColor;
-                                Console.ForegroundColor = oldBgColor;
-                            }
-                        }
-                        else
-                        {
-                            toWrite = "╬ ";
-                        }
-                    }
-
-                    // if we are in color mode, write string and reset for the next one
-                    if (colorsOn)
-                    {
-                        Console.Write(toWrite);
-                        Console.ResetColor();
-                    }
-                    // if in black and white mode, add string to the string builder
-                    else
-                    {
-                        sb.Append(toWrite);
-                    }
-                }
-
-                // end of line
-                if (colorsOn)
-                    // new line
-                    Console.WriteLine();
-                else
-                    Console.WriteLine(sb.ToString());
+                // append end of line
+                sb.Append("\r\n");
 
             }
+
+            // Print the whole thing all at once
+            Console.WriteLine(sb.ToString());
+
+            // print control hint
+            Console.SetCursorPosition(0, theController.theMinefield.Height + 4);
+            Console.WriteLine(helpMessage);
+
+            // start the main game loop
+            while (true) // should still exit when user presses normal console exit key combo
+                ReadInput();
         }
 
         /// <summary>

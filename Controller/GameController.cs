@@ -22,19 +22,48 @@ namespace Minesweeper
         public event Action<bool> GameOver;
 
         /// <summary>
+        /// Fires whenever the board has been updated, meaning the cursor has been moved or a group of tiles has been revealed or otherwise changed.
+        /// The Set of Tiles indicates the grid squares that need to be visually updated as a result of this change.
+        /// </summary>
+        public event Action<ISet<Tile>> BoardUpdated;
+
+        /// <summary>
+        /// Signals that the board needs to be visually initialized with grid borders and labels
+        /// </summary>
+        public event Action InitBoard;
+
+        /// <summary>
         /// The status message to display below the game board
         /// </summary>
         public string statusMessage = "Selected: a1";
+
+        /// <summary>
+        /// The X position of the cursor. 
+        /// </summary>
+        public int CursorX { get { return theMinefield.SelectedCol; } }
+
+        /// <summary>
+        /// The vertical position of the cursor. 
+        /// </summary>
+        public int CursorY { get { return theMinefield.SelectedRow; } }
 
         /// <summary>
         /// Move the current tile selection up one square
         /// </summary>
         public void MoveCursorUp()
         {
+            // keep track of the previously selected tile bc it will need to be visually updated when it is deselected
+            HashSet<Tile> prevTile = new HashSet<Tile>();
+            prevTile.Add(theMinefield.GetTile(theMinefield.SelectedCol, theMinefield.SelectedRow));
+
             if (theMinefield.SelectedRow > 0)
                 theMinefield.SelectedRow--;
 
             statusMessage = "Selected: " + (char)('a' + theMinefield.SelectedCol) + (theMinefield.SelectedRow + 1);
+
+            prevTile.Add(theMinefield.GetTile(theMinefield.SelectedCol, theMinefield.SelectedRow));
+            // indicate that the cursor and status message, as well as the previously selected tile, need to be visually updated
+            BoardUpdated(prevTile);
         }
 
         /// <summary>
@@ -42,10 +71,19 @@ namespace Minesweeper
         /// </summary>
         public void MoveCursorDown()
         {
+            // keep track of the previously selected tile bc it will need to be visually updated when it is deselected
+            HashSet<Tile> prevTile = new HashSet<Tile>();
+            prevTile.Add(theMinefield.GetTile(theMinefield.SelectedCol, theMinefield.SelectedRow));
+
             if (theMinefield.SelectedRow < theMinefield.Height - 1)
                 theMinefield.SelectedRow++;
 
             statusMessage = "Selected: " + (char)('a' + theMinefield.SelectedCol) + (theMinefield.SelectedRow + 1);
+
+            prevTile.Add(theMinefield.GetTile(theMinefield.SelectedCol, theMinefield.SelectedRow));
+            
+            // indicate that the cursor and status message, as well as the previously selected tile, need to be visually updated
+            BoardUpdated(prevTile);
         }
 
         /// <summary>
@@ -53,10 +91,18 @@ namespace Minesweeper
         /// </summary>
         public void MoveCursorLeft()
         {
+            // keep track of the previously selected tile bc it will need to be visually updated when it is deselected
+            HashSet<Tile> prevTile = new HashSet<Tile>();
+            prevTile.Add(theMinefield.GetTile(theMinefield.SelectedCol, theMinefield.SelectedRow));
+
             if (theMinefield.SelectedCol > 0)
                 theMinefield.SelectedCol--;
 
             statusMessage = "Selected: " + (char)('a' + theMinefield.SelectedCol) + (theMinefield.SelectedRow + 1);
+
+            prevTile.Add(theMinefield.GetTile(theMinefield.SelectedCol, theMinefield.SelectedRow));
+            // indicate that the cursor and status message, as well as the previously selected tile, need to be visually updated
+            BoardUpdated(prevTile);
         }
 
         /// <summary>
@@ -64,49 +110,80 @@ namespace Minesweeper
         /// </summary>
         public void MoveCursorRight()
         {
+            // keep track of the previously selected tile bc it will need to be visually updated when it is deselected
+            HashSet<Tile> prevTile = new HashSet<Tile>();
+            prevTile.Add(theMinefield.GetTile(theMinefield.SelectedCol, theMinefield.SelectedRow));
+
             if (theMinefield.SelectedCol < theMinefield.Width - 1)
                 theMinefield.SelectedCol++;
 
             statusMessage = "Selected: " + (char)('a' + theMinefield.SelectedCol) + (theMinefield.SelectedRow + 1);
+
+            prevTile.Add(theMinefield.GetTile(theMinefield.SelectedCol, theMinefield.SelectedRow));
+            // indicate that the cursor and status message, as well as the previously selected tile, need to be visually updated
+            BoardUpdated(prevTile);
         }
 
         public void NewGame(int width, int height, int numMines)
         {
+            Console.Clear();
             theMinefield = new Minefield(width, height, numMines);
+            // signal to the View that all grid squares need to be rendered
+            HashSet<Tile> allTiles = new HashSet<Tile>();
+            foreach (Tile t in theMinefield.IterateAllTiles())
+                allTiles.Add(t);
+
+            BoardUpdated(allTiles);
+            InitBoard();
         }
 
         /// <summary>
-        /// Digs the currently selected tile.
+        /// Convenience method for digging the currently selected tile.
         /// </summary>
         public void Dig()
         {
             Dig(theMinefield.SelectedCol, theMinefield.SelectedRow);
         }
 
+        /// <summary>
+        /// Digs (reveals) the selected grid square
+        /// </summary>
+        /// <param name="col"></param>
+        /// <param name="row"></param>
+        /// <returns></returns>
         public void Dig(int col, int row)
         {
             if (theMinefield.GetTile(col, row).IsFlagged)
             {
                 statusMessage = "You must remove the flag before digging that space";
-                return;
+                BoardUpdated(new HashSet<Tile>());
+                return; 
             }
 
-            if (theMinefield.Dig(col, row)) // if it was a mine
+            ISet<Tile> revealedTiles = theMinefield.Dig(col, row);
+            BoardUpdated(revealedTiles);
+            if (theMinefield.GetTile(col, row).IsMine) // if it was a mine
+            {
+                theMinefield.RevealAllTiles();
+
+                HashSet<Tile> allTiles = new HashSet<Tile>();
+                // signal to the CLI that all tiles need to be visually updated
+                foreach (Tile t in theMinefield.IterateAllTiles())
+                    allTiles.Add(t);
+
+                BoardUpdated(allTiles);
                 GameOver(false); // they lost
+            }
 
             bool hasWon = true;
             // check if the user has won
             foreach (Tile t in theMinefield.IterateAllTiles())
-            {
                 // every tile should be either revealed or a mine
                 if (t.IsHidden && !t.IsMine)
-                {
                     hasWon = false;
-                }
-            }
 
             if (hasWon)
-                GameOver(true); // they won
+                GameOver(true);
         }
 
         /// <summary>
@@ -116,7 +193,8 @@ namespace Minesweeper
         /// <param name="row"></param>
         public void ToggleFlag()
         {
-            if (theMinefield.GetTile(theMinefield.SelectedCol, theMinefield.SelectedRow).IsHidden)
+            Tile selectedTile = theMinefield.GetTile(theMinefield.SelectedCol, theMinefield.SelectedRow);
+            if (selectedTile.IsHidden)
             {
                 theMinefield.ToggleFlag(theMinefield.SelectedCol, theMinefield.SelectedRow);
                 if (theMinefield.GetTile(theMinefield.SelectedCol, theMinefield.SelectedRow).IsFlagged)
@@ -126,6 +204,10 @@ namespace Minesweeper
             }
             else
                 statusMessage = "You cannot flag an already revealed space";
+
+            HashSet<Tile> flaggedTile = new HashSet<Tile>();
+            flaggedTile.Add(selectedTile);
+            BoardUpdated(flaggedTile);
         }
 
         /// <summary>
@@ -137,6 +219,5 @@ namespace Minesweeper
         {
             theMinefield.ToggleFlag(col, row);
         }
-        
     }
 }
