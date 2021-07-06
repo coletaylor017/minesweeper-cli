@@ -126,6 +126,7 @@ namespace Minesweeper
 
         public void NewGame(int width, int height, int numMines)
         {
+            Console.Clear();
             theMinefield = new Minefield(width, height, numMines);
             // signal to the View that all grid squares need to be rendered
             HashSet<Tile> allTiles = new HashSet<Tile>();
