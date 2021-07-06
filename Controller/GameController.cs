@@ -56,6 +56,7 @@ namespace Minesweeper
 
             statusMessage = "Selected: " + (char)('a' + theMinefield.SelectedCol) + (theMinefield.SelectedRow + 1);
 
+            prevTile.Add(theMinefield.GetTile(theMinefield.SelectedCol, theMinefield.SelectedRow));
             // indicate that the cursor and status message, as well as the previously selected tile, need to be visually updated
             BoardUpdated(prevTile);
         }
@@ -74,6 +75,7 @@ namespace Minesweeper
 
             statusMessage = "Selected: " + (char)('a' + theMinefield.SelectedCol) + (theMinefield.SelectedRow + 1);
 
+            prevTile.Add(theMinefield.GetTile(theMinefield.SelectedCol, theMinefield.SelectedRow));
             
             // indicate that the cursor and status message, as well as the previously selected tile, need to be visually updated
             BoardUpdated(prevTile);
@@ -93,6 +95,7 @@ namespace Minesweeper
 
             statusMessage = "Selected: " + (char)('a' + theMinefield.SelectedCol) + (theMinefield.SelectedRow + 1);
 
+            prevTile.Add(theMinefield.GetTile(theMinefield.SelectedCol, theMinefield.SelectedRow));
             // indicate that the cursor and status message, as well as the previously selected tile, need to be visually updated
             BoardUpdated(prevTile);
         }
@@ -111,6 +114,7 @@ namespace Minesweeper
 
             statusMessage = "Selected: " + (char)('a' + theMinefield.SelectedCol) + (theMinefield.SelectedRow + 1);
 
+            prevTile.Add(theMinefield.GetTile(theMinefield.SelectedCol, theMinefield.SelectedRow));
             // indicate that the cursor and status message, as well as the previously selected tile, need to be visually updated
             BoardUpdated(prevTile);
         }

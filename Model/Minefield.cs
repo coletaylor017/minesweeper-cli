@@ -25,12 +25,34 @@ namespace Minesweeper
         /// <summary>
         /// Column of the current location of the cursor
         /// </summary>
-        public int SelectedCol { get; set; }
+        private int selectedCol;
+        public int SelectedCol
+        {
+            get => selectedCol;
+            set
+            {
+                // switch selected cell
+                GetTile(SelectedCol, SelectedRow).IsSelected = false;
+                GetTile(value, SelectedRow).IsSelected = true;
+                selectedCol = value;
+            }
+        }
 
         /// <summary>
         /// Row of the current lcoation of the cursor
         /// </summary>
-        public int SelectedRow { get; set; }
+        private int selectedRow;
+        public int SelectedRow
+        {
+            get => selectedRow;
+            set
+            {
+                // switch selected cell
+                GetTile(SelectedCol, SelectedRow).IsSelected = false;
+                GetTile(SelectedCol, value).IsSelected = true;
+                selectedRow = value;
+            }
+        }
 
         /// <summary>
         /// Generates a new valid minesweeper setup with the given width, height, and number of mines
@@ -39,9 +61,6 @@ namespace Minesweeper
         {
             Width = width;
             Height = height;
-
-            SelectedCol = 0;
-            SelectedRow = 0;
 
             field = new List<List<Tile>>();
 
@@ -52,6 +71,9 @@ namespace Minesweeper
                 for (int j = 0; j < height; j++)
                     field[i].Add(new Tile(i, j));
             }
+
+            SelectedCol = 0;
+            SelectedRow = 0;
 
             // set random mines
             int minesPlaced = 0;

@@ -196,18 +196,19 @@ namespace Minesweeper
             // Set indicator message
             Console.SetCursorPosition(0, theController.theMinefield.Height + 3);
             Console.WriteLine(theController.statusMessage);
+            Console.ResetColor();
 
             foreach (Tile t in updatedTiles)
             {
                 Console.SetCursorPosition(t.Col * 2 + 4, t.Row + 2);
 
-                if (t.Row == theController.CursorX && t.Col == theController.CursorY)
+                if (t.Row == theController.theMinefield.SelectedRow && t.Col == theController.theMinefield.SelectedCol)
                 {
                     // invert colors to show which tile is selected
                     //ConsoleColor prevBgColor = Console.BackgroundColor;
                     //Console.BackgroundColor = Console.ForegroundColor;
                     //Console.ForegroundColor = Console.BackgroundColor;
-                    //Console.Write("\u001b[7m");
+                    Console.Write("\u001b[7m");
                 }
 
                 if (t.IsFlagged)
@@ -243,8 +244,8 @@ namespace Minesweeper
             }
 
             // Draw pretty cursor and set Console Cursor position out of the way
-            Console.SetCursorPosition(theController.CursorX * 2 + 4, theController.CursorY + 2);
-            Console.Write("\u001b[31m╬ \u001b[0m");
+            //Console.SetCursorPosition(theController.CursorX * 2 + 4, theController.CursorY + 2);
+            //Console.Write("\u001b[31m╬ \u001b[0m");
 
             Console.SetCursorPosition(0, 0);
 
