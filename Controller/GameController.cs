@@ -22,6 +22,12 @@ namespace Minesweeper
         public event Action<bool> GameOver;
 
         /// <summary>
+        /// Fires whenever the board has been updated, meaning the cursor has been moved or a group of tiles has been revealed or otherwise changed.
+        /// The Set of Tiles indicates the grid squares that need to be visually updated as a result of this change.
+        /// </summary>
+        public event Action<ISet<Tile>> BoardUpdated;
+
+        /// <summary>
         /// The status message to display below the game board
         /// </summary>
         public string statusMessage = "Selected: a1";
@@ -108,6 +114,7 @@ namespace Minesweeper
             }
 
             ISet<Tile> revealedTiles = theMinefield.Dig(col, row);
+            BoardUpdated(revealedTiles);
             if (theMinefield.GetTile(col, row).IsMine) // if it was a mine
                 GameOver(false); // they lost
 

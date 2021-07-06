@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
 
@@ -48,6 +49,7 @@ namespace Minesweeper
         public MinesweeperCLI()
         {
             theController.GameOver += EndGame;
+            theController.BoardUpdated += HandleBoardUpdate;
 
             WriteRainbowLine(@"
 ╔══════════════════════════════════════════════════════════════════════════╗
@@ -144,7 +146,12 @@ namespace Minesweeper
             ));
 
             theController.NewGame(width, height, numMines);
+
+            Console.Clear();
             PrintWorld();
+            Console.WriteLine(theController.statusMessage);
+            if (showControlHints)
+                Console.WriteLine("Use arrow keys to select a space, d to dig, and f to flag (press h to show/hide this message)");
 
             while (true) // should still exit when user presses normal console exit key combo
             {
@@ -157,9 +164,6 @@ namespace Minesweeper
         /// </summary>
         private void RenderFrame()
         {
-            Console.WriteLine(theController.statusMessage);
-            if (showControlHints)
-                Console.WriteLine("Use arrow keys to select a space, d to dig, and f to flag (press h to show/hide this message)");
             
             // Set the cursor position based on the model
             Console.SetCursorPosition(theController.CursorX * 2 + 4, theController.CursorY + 2);
@@ -190,6 +194,45 @@ namespace Minesweeper
                 case ConsoleKey.E:
                     Console.Write("e");
                     break;
+            }
+        }
+
+        private void HandleBoardUpdate(ISet<Tile> updatedTiles)
+        {
+            foreach (Tile t in updatedTiles)
+            {
+                Console.SetCursorPosition(t.Col * 2 + 4, t.Row + 2);
+
+                if (t.IsFlagged)
+                    Console.Write("▲ ");
+                else if (t.IsHidden)
+                    Console.Write("\u001b[37m░░\u001b[0m");
+                else if (t.IsMine)
+                    Console.Write("҉ ");
+                else
+                {
+                    switch (t.Value)
+                    {
+                        case 0:
+                            Console.Write("  ");
+                            break;
+                        case 1:
+                            Console.Write("\u001b[34m" + t.Value + " \u001b[0m"); // blue
+                            break;
+                        case 2:
+                            Console.Write("\u001b[32m" + t.Value + " \u001b[0m");
+                            break;
+                        case 3:
+                            Console.Write("\u001b[31m" + t.Value + " \u001b[0m"); // red
+                            break;
+                        case 4:
+                            Console.Write("\u001b[33m" + t.Value + " \u001b[0m"); //yellow
+                            break;
+                        default:
+                            Console.Write("\u001b[35m" + t.Value + " \u001b[0m"); //magenta
+                            break;
+                    }
+                }
             }
         }
 
