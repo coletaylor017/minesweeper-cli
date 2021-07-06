@@ -137,7 +137,7 @@ namespace Minesweeper
         }
 
         /// <summary>
-        /// Digs the currently selected tile.
+        /// Convenience method for digging the currently selected tile.
         /// </summary>
         public void Dig()
         {
@@ -150,34 +150,39 @@ namespace Minesweeper
         /// <param name="col"></param>
         /// <param name="row"></param>
         /// <returns></returns>
-        public ISet<Tile> Dig(int col, int row)
+        public void Dig(int col, int row)
         {
             if (theMinefield.GetTile(col, row).IsFlagged)
             {
                 statusMessage = "You must remove the flag before digging that space";
-                return new HashSet<Tile>();
+                BoardUpdated(new HashSet<Tile>());
+                return; 
             }
 
             ISet<Tile> revealedTiles = theMinefield.Dig(col, row);
             BoardUpdated(revealedTiles);
             if (theMinefield.GetTile(col, row).IsMine) // if it was a mine
+            {
+                theMinefield.RevealAllTiles();
+
+                HashSet<Tile> allTiles = new HashSet<Tile>();
+                // signal to the CLI that all tiles need to be visually updated
+                foreach (Tile t in theMinefield.IterateAllTiles())
+                    allTiles.Add(t);
+
+                BoardUpdated(allTiles);
                 GameOver(false); // they lost
+            }
 
             bool hasWon = true;
             // check if the user has won
             foreach (Tile t in theMinefield.IterateAllTiles())
-            {
                 // every tile should be either revealed or a mine
                 if (t.IsHidden && !t.IsMine)
-                {
                     hasWon = false;
-                }
-            }
 
             if (hasWon)
-                GameOver(true); // they won
-
-            return revealedTiles;
+                GameOver(true);
         }
 
         /// <summary>
@@ -197,6 +202,8 @@ namespace Minesweeper
             }
             else
                 statusMessage = "You cannot flag an already revealed space";
+
+            BoardUpdated(new HashSet<Tile>());
         }
 
         /// <summary>
@@ -208,6 +215,5 @@ namespace Minesweeper
         {
             theMinefield.ToggleFlag(col, row);
         }
-        
     }
 }

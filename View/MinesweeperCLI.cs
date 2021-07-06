@@ -22,6 +22,8 @@ namespace Minesweeper
 
         private ConsoleColor errorColor = ConsoleColor.Yellow;
 
+        private String helpMessage = "Use arrow keys or HJKL to select a space, d to dig, and f to flag (press F1 to show/hide this message)";
+
         /// <summary>
         /// Delegate for checking whether an input string is valid or not
         /// </summary>
@@ -43,7 +45,7 @@ namespace Minesweeper
         /// </summary>
         public MinesweeperCLI()
         {
-            theController.GameOver += EndGame;
+            theController.GameOver += HandleGameOver;
             theController.BoardUpdated += HandleBoardUpdate;
             theController.InitBoard += HandleInitBoard;
 
@@ -69,23 +71,10 @@ namespace Minesweeper
         /// Handles when the game ends, whether by blowing up a mine or by winning.
         /// </summary>
         /// <param name="gameIsWon"></param>
-        private void EndGame(bool gameIsWon)
+        private void HandleGameOver(bool gameIsWon)
         {
-            Console.Clear();
-            string message;
-            if (gameIsWon)
-            {
-                //PrintWorld();
-                message = "You win! :D ";
-            }
-            else
-            {
-                // reveal all tiles
-                theController.theMinefield.RevealAllTiles();
-                //PrintWorld();
-                message = "You lost :( ";
-            }
-            Console.Write(message);
+            Console.SetCursorPosition(0, theController.theMinefield.Height + 5);
+            Console.Write(gameIsWon ? "You win! :D" : "You lost :(");
             Console.Write("Play again? ");
             WriteYesOrNo();
             Console.WriteLine();
@@ -125,9 +114,8 @@ namespace Minesweeper
                 s => (int.TryParse(s, out int n) && n <= 80 && n >= 4), 
                 "Number was out of range of improperly formatted. Try again:"
             ));
-            //int height = width;
 
-            //WriteInColor("Input board height", accentColor);
+            WriteInColor("Input board height", accentColor);
             Console.WriteLine(" (4-45, inclusive):");
             int height = int.Parse(GetValidStringInput(
                 s => (int.TryParse(s, out int n) && n <= 45 && n >= 4),
@@ -142,10 +130,6 @@ namespace Minesweeper
             ));
 
             theController.NewGame(width, height, numMines);
-
-            //if (showControlHints)
-            //    Console.WriteLine("Use arrow keys to select a space, d to dig, and f to flag (press h to show/hide this message)");
-
         }
 
         /// <summary>
@@ -153,45 +137,73 @@ namespace Minesweeper
         /// </summary>
         private void ReadInput()
         {
-            ConsoleKeyInfo inputKeyInfo = Console.ReadKey(false);
+            ConsoleKeyInfo inputKeyInfo = Console.ReadKey(true);
             switch (inputKeyInfo.Key)
             {
+                case ConsoleKey.K:
                 case ConsoleKey.UpArrow:
                     theController.MoveCursorUp(); // Moves the cursor up in the model, now move it up visually
                     break;
+                case ConsoleKey.J:
                 case ConsoleKey.DownArrow:
                     theController.MoveCursorDown();
                     break;
+                case ConsoleKey.H:
                 case ConsoleKey.LeftArrow:
                     theController.MoveCursorLeft();
                     break;
+                case ConsoleKey.L:
                 case ConsoleKey.RightArrow:
                     theController.MoveCursorRight();
                     break;
                 case ConsoleKey.D:
                     theController.Dig();
                     break;
-                case ConsoleKey.H:
-                    showControlHints = !showControlHints;
-                    break;
                 case ConsoleKey.F:
                     theController.ToggleFlag();
+                    break;
+                case ConsoleKey.F1: // toggle control hints
+                    showControlHints = !showControlHints;
+                    // Set help message, if help message is turned on, else cover it up
+                    Console.SetCursorPosition(0, theController.theMinefield.Height + 4);
+                    if (showControlHints)
+                        Console.WriteLine(helpMessage);
+                    else // cover the message up
+                    {
+                        for (int i = 0; i < helpMessage.Length; i++)
+                            Console.Write(" "); // would be more efficient to use a StringBuilder but the message is short enough that it doesn't matter
+                    }
+
+                    // set cursor back to the top left
+                    Console.SetCursorPosition(0, 0);
                     break;
             }
         }
 
         /// <summary>
-        /// Takes a list of updated cells and updates them visually in the game grid. 
+        /// Event handler for when some tiles need to be visually updated.
         /// </summary>
         /// <param name="updatedTiles"></param>
         private void HandleBoardUpdate(ISet<Tile> updatedTiles)
         {
+            VisuallyUpdateTiles(updatedTiles);
+        }
+
+        /// <summary>
+        /// Takes a list of updated cells and updates them visually in the game grid. 
+        /// </summary>
+        /// <param name="tilesToUpdate"></param>
+        private void VisuallyUpdateTiles(ISet<Tile> tilesToUpdate)
+        {
             // Set indicator message
             Console.SetCursorPosition(0, theController.theMinefield.Height + 3);
-            Console.WriteLine(theController.statusMessage);
+            Console.ForegroundColor = accentColor;
+            // cover up the previous message if it was longer
+            Console.WriteLine(theController.statusMessage + "                                                                                          ");
             Console.ResetColor();
 
-            foreach (Tile t in updatedTiles)
+
+            foreach (Tile t in tilesToUpdate)
             {
                 Console.SetCursorPosition(t.Col * 2 + 4, t.Row + 2);
 
@@ -232,12 +244,7 @@ namespace Minesweeper
                 Console.Write("\u001b[0m");
             }
 
-            // Draw pretty cursor and set Console Cursor position out of the way
-            //Console.SetCursorPosition(theController.CursorX * 2 + 4, theController.CursorY + 2);
-            //Console.Write("\u001b[31m╬ \u001b[0m");
-
             Console.SetCursorPosition(0, 0);
-
         }
 
         /// <summary>
@@ -249,7 +256,7 @@ namespace Minesweeper
             StringBuilder sb = new StringBuilder();
             sb.Append("    ");
             for (int i = 0; i < theController.theMinefield.Width; i++)
-                sb.Append($"{(char)('a' + i)} ");
+                sb.Append($"{(char)('a' + i % 26)} ");
 
             sb.Append("\r\n");
 
@@ -278,6 +285,10 @@ namespace Minesweeper
 
             // Print the whole thing all at once
             Console.WriteLine(sb.ToString());
+
+            // print control hint
+            Console.SetCursorPosition(0, theController.theMinefield.Height + 4);
+            Console.WriteLine(helpMessage);
 
             // start the main game loop
             while (true) // should still exit when user presses normal console exit key combo

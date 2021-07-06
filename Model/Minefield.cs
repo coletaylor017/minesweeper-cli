@@ -161,9 +161,7 @@ namespace Minesweeper
         public void RevealAllTiles()
         {
             foreach(Tile t in IterateAllTiles())
-            {
                 t.IsHidden = false;
-            }
         }
 
         /// <summary>
