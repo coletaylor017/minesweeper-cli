@@ -59,7 +59,7 @@ namespace Minesweeper
             if (theMinefield.SelectedRow > 0)
                 theMinefield.SelectedRow--;
 
-            statusMessage = "Selected: " + (char)('a' + theMinefield.SelectedCol) + (theMinefield.SelectedRow + 1);
+            statusMessage = "Selected: " + (char)('a' + theMinefield.SelectedCol % 26) + (theMinefield.SelectedRow + 1);
 
             prevTile.Add(theMinefield.GetTile(theMinefield.SelectedCol, theMinefield.SelectedRow));
             // indicate that the cursor and status message, as well as the previously selected tile, need to be visually updated
@@ -78,7 +78,7 @@ namespace Minesweeper
             if (theMinefield.SelectedRow < theMinefield.Height - 1)
                 theMinefield.SelectedRow++;
 
-            statusMessage = "Selected: " + (char)('a' + theMinefield.SelectedCol) + (theMinefield.SelectedRow + 1);
+            statusMessage = "Selected: " + (char)('a' + theMinefield.SelectedCol % 26) + (theMinefield.SelectedRow + 1);
 
             prevTile.Add(theMinefield.GetTile(theMinefield.SelectedCol, theMinefield.SelectedRow));
             
@@ -98,7 +98,7 @@ namespace Minesweeper
             if (theMinefield.SelectedCol > 0)
                 theMinefield.SelectedCol--;
 
-            statusMessage = "Selected: " + (char)('a' + theMinefield.SelectedCol) + (theMinefield.SelectedRow + 1);
+            statusMessage = "Selected: " + (char)('a' + theMinefield.SelectedCol % 26) + (theMinefield.SelectedRow + 1);
 
             prevTile.Add(theMinefield.GetTile(theMinefield.SelectedCol, theMinefield.SelectedRow));
             // indicate that the cursor and status message, as well as the previously selected tile, need to be visually updated
@@ -117,7 +117,7 @@ namespace Minesweeper
             if (theMinefield.SelectedCol < theMinefield.Width - 1)
                 theMinefield.SelectedCol++;
 
-            statusMessage = "Selected: " + (char)('a' + theMinefield.SelectedCol) + (theMinefield.SelectedRow + 1);
+            statusMessage = "Selected: " + (char)('a' + theMinefield.SelectedCol % 26) + (theMinefield.SelectedRow + 1);
 
             prevTile.Add(theMinefield.GetTile(theMinefield.SelectedCol, theMinefield.SelectedRow));
             // indicate that the cursor and status message, as well as the previously selected tile, need to be visually updated
