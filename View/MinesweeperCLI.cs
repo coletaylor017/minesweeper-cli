@@ -207,41 +207,52 @@ namespace Minesweeper
             {
                 Console.SetCursorPosition(t.Col * 2 + 4, t.Row + 2);
 
-                // invert colors to show which tile is selected
-                if (t.IsSelected)
-                    Console.Write("\u001b[7m");
+                String toWrite;
 
                 if (t.IsFlagged)
-                    Console.Write("▲ ");
+                    toWrite = "▲ ";
                 else if (t.IsHidden)
-                    Console.Write("\u001b[37m░░");
+                    toWrite = "░░";
                 else if (t.IsMine)
-                    Console.Write("҉ ");
+                    toWrite = "҉ ";
                 else
                 {
                     switch (t.Value)
                     {
                         case 0:
-                            Console.Write("  ");
+                            toWrite = "  ";
                             break;
                         case 1:
-                            Console.Write("\u001b[34m" + t.Value + " "); // blue
+                            Console.ForegroundColor = ConsoleColor.Blue;
+                            toWrite = t.Value + " ";
                             break;
                         case 2:
-                            Console.Write("\u001b[32m" + t.Value + " "); // green
+                            Console.ForegroundColor = ConsoleColor.Green;
+                            toWrite = t.Value + " ";
                             break;
                         case 3:
-                            Console.Write("\u001b[31m" + t.Value + " "); // red
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            toWrite = t.Value + " ";
                             break;
                         case 4:
-                            Console.Write("\u001b[33m" + t.Value + " "); //yellow
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            toWrite = t.Value + " ";
                             break;
                         default:
-                            Console.Write("\u001b[35m" + t.Value + " "); //magenta
+                            Console.ForegroundColor = ConsoleColor.Magenta;
+                            toWrite = t.Value + " ";
                             break;
                     }
                 }
-                Console.Write("\u001b[0m");
+                // invert colors to show which tile is selected
+                if (t.IsSelected)
+                {
+                    ConsoleColor prevBg = Console.BackgroundColor;
+                    Console.BackgroundColor = Console.ForegroundColor;
+                    Console.ForegroundColor = prevBg;
+                }
+                Console.Write(toWrite);
+                Console.ResetColor();
             }
 
             Console.SetCursorPosition(0, 0);
